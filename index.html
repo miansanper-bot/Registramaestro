@@ -1,0 +1,2144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RegistrAula</title>
+<meta name="theme-color" content="#1c5cab">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="RegistrAula">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{
+  color-scheme: light;
+  --bg:#f6f5f2; --surface:#ffffff; --surface2:#f0efec; --ink:#1b1b1a; --ink2:#52514e; --muted:#8a8983;
+  --line:#e4e2dc; --primary:#1c5cab; --primary-ink:#ffffff;
+  --pos:#2a78d6; --pos-soft:#cde2fb; --neg:#e34948; --neg-soft:#fbdada; --neu:#6b6a65; --neu-soft:#ebeae6;
+  --sel:#1b1b1a; --sel-ink:#ffffff; --warn-bg:#fff4d6; --warn-ink:#6b4a00;
+  --radius:14px; --shadow:0 1px 2px rgba(0,0,0,.06),0 2px 8px rgba(0,0,0,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --bg:#121211; --surface:#1d1d1b; --surface2:#262624; --ink:#f3f2ee; --ink2:#c3c2b7; --muted:#8f8e86;
+    --line:#34332f; --primary:#3987e5; --primary-ink:#0b0b0b;
+    --pos:#3987e5; --pos-soft:#17304f; --neg:#e66767; --neg-soft:#4a2020; --neu:#a3a29b; --neu-soft:#2e2e2b;
+    --sel:#f3f2ee; --sel-ink:#121211; --warn-bg:#3a3014; --warn-ink:#f1d58a;
+    --shadow:none;
+    --l1:#17304f;--l1i:#cde2fb;--l2:#256abf;--l2i:#ffffff;--l3:#5598e7;--l3i:#0b0b0b;--l4:#b7d3f6;--l4i:#0b0b0b;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#121211; --surface:#1d1d1b; --surface2:#262624; --ink:#f3f2ee; --ink2:#c3c2b7; --muted:#8f8e86;
+  --line:#34332f; --primary:#3987e5; --primary-ink:#0b0b0b;
+  --pos:#3987e5; --pos-soft:#17304f; --neg:#e66767; --neg-soft:#4a2020; --neu:#a3a29b; --neu-soft:#2e2e2b;
+  --sel:#f3f2ee; --sel-ink:#121211; --warn-bg:#3a3014; --warn-ink:#f1d58a;
+  --shadow:none;
+  --l1:#17304f;--l1i:#cde2fb;--l2:#256abf;--l2i:#ffffff;--l3:#5598e7;--l3i:#0b0b0b;--l4:#b7d3f6;--l4i:#0b0b0b;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:16px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-user-select:none;user-select:none;overscroll-behavior:none}
+input,textarea,select{-webkit-user-select:text;user-select:text;font:inherit;color:inherit}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+#app{display:flex;flex-direction:column;height:100%;height:100dvh}
+header.top{display:flex;align-items:center;gap:10px;padding:10px 16px;padding-top:max(10px,env(safe-area-inset-top));
+  background:var(--surface);border-bottom:1px solid var(--line)}
+header.top .brand{font-weight:700;font-size:18px;letter-spacing:-.01em;white-space:nowrap}
+header.top .brand span{color:var(--primary)}
+header.top .clock{margin-left:auto;color:var(--ink2);font-variant-numeric:tabular-nums;white-space:nowrap}
+main{flex:1;overflow:auto;-webkit-overflow-scrolling:touch}
+nav.tabs{display:flex;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav.tabs button{flex:1;border:0;background:none;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--muted);font-size:13px}
+nav.tabs button svg{width:24px;height:24px}
+nav.tabs button.on{color:var(--primary);font-weight:600}
+.wrap{padding:16px;max-width:1400px;margin:0 auto}
+h2{font-size:20px;margin:0 0 12px}
+h3{font-size:16px;margin:18px 0 8px;color:var(--ink)}
+.muted{color:var(--muted)} .ink2{color:var(--ink2)} .small{font-size:13px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 14px;min-height:42px;font-weight:500}
+.btn:active{transform:scale(.97)}
+.btn.pri{background:var(--primary);border-color:var(--primary);color:var(--primary-ink)}
+.btn.danger{color:var(--neg);border-color:var(--neg)}
+.btn.sm{min-height:34px;padding:5px 10px;font-size:14px}
+.btn.ghost{border-color:transparent;background:transparent}
+select,input[type=text],input[type=number],input[type=date],input[type=time],textarea{
+  border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 10px;min-height:42px;max-width:100%}
+textarea{width:100%;min-height:80px;resize:vertical}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--ink2)}
+label.f > *{font-size:16px;color:var(--ink)}
+.banner{background:var(--warn-bg);color:var(--warn-ink);border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+/* ---------- AULA ---------- */
+.session{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.session .pill{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:14px}
+.session .dot{width:10px;height:10px;border-radius:50%}
+.aula{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(320px,1fr);gap:16px;align-items:start}
+@media (max-width:820px){.aula{grid-template-columns:1fr}}
+.stu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(122px,1fr));gap:8px}
+.stu{position:relative;border:1.5px solid var(--line);background:var(--surface);border-radius:12px;min-height:66px;padding:8px 8px 18px;
+  text-align:left;font-weight:600;font-size:15px;line-height:1.2;box-shadow:var(--shadow);overflow:hidden}
+.stu .sur{display:block;font-weight:400;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stu.on{background:var(--sel);color:var(--sel-ink);border-color:var(--sel)}
+.stu.on .sur{color:inherit;opacity:.75}
+.stu .bd{position:absolute;right:6px;bottom:4px;display:flex;gap:4px;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+.stu .bd b{padding:0 5px;border-radius:6px}
+.stu .bd .p{background:var(--pos-soft);color:var(--pos)} .stu .bd .n{background:var(--neg-soft);color:var(--neg)}
+.stu .bd .s{background:var(--neu-soft);color:var(--ink2)}
+.stu.on .bd b{background:rgba(255,255,255,.2);color:inherit}
+.panel{position:sticky;top:0}
+.catlbl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:12px 0 6px}
+.inds{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px}
+.ind{border:1.5px solid var(--line);border-radius:10px;background:var(--surface);min-height:52px;padding:6px 10px;text-align:left;font-size:14px;font-weight:500;display:flex;align-items:center;gap:8px}
+.ind .sg{flex:none;width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-weight:800;font-size:15px}
+.ind.p .sg{background:var(--pos-soft);color:var(--pos)} .ind.n .sg{background:var(--neg-soft);color:var(--neg)} .ind.z .sg{background:var(--neu-soft);color:var(--ink2);font-size:11px}
+.ind:disabled{opacity:.45}
+.ind.pend{outline:2px solid var(--primary);outline-offset:1px}
+.picker{border:2px solid var(--primary);border-radius:12px;padding:10px;margin:10px 0;background:var(--surface)}
+.picker .vals{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.picker .vals button{min-width:52px;min-height:52px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface2);font-size:20px;font-weight:700}
+.feed{margin-top:14px}
+.feed .it{display:flex;gap:8px;align-items:center;padding:7px 0;border-top:1px solid var(--line);font-size:14px}
+.chip{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.chip.p{background:var(--pos-soft);color:var(--pos)} .chip.n{background:var(--neg-soft);color:var(--neg)} .chip.z{background:var(--neu-soft);color:var(--ink2)}
+.empty{padding:28px;text-align:center;color:var(--ink2)}
+
+/* ---------- LISTAS / TABLAS ---------- */
+.list .it{display:flex;gap:10px;align-items:center;padding:10px 4px;border-bottom:1px solid var(--line)}
+.list .it:last-child{border-bottom:0}
+.tbl{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.tbl th{text-align:left;font-size:12px;color:var(--muted);font-weight:600;padding:8px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl tr.click{cursor:pointer} .tbl tr.click:active{background:var(--surface2)}
+.num{text-align:right}
+.subtabs{display:flex;gap:6px;overflow:auto;margin-bottom:14px;padding-bottom:2px}
+.subtabs button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;white-space:nowrap;font-size:14px}
+.subtabs button.on{background:var(--sel);color:var(--sel-ink);border-color:var(--sel)}
+.sched{width:100%;border-collapse:separate;border-spacing:4px;font-size:13px}
+.sched th{color:var(--muted);font-weight:600;padding:4px}
+.sched td{vertical-align:top;min-width:90px}
+.sched .ss{display:block;width:100%;text-align:left;border:0;border-radius:8px;padding:6px 8px;margin-bottom:3px;color:#fff;font-size:13px;line-height:1.2}
+.swatch{width:22px;height:22px;border-radius:6px;display:inline-block;flex:none}
+
+/* ---------- INFORMES ---------- */
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px}
+.kpi .l{font-size:13px;color:var(--ink2)} .kpi .v{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.kpi .s{font-size:12px;color:var(--muted)}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:14px;margin-bottom:14px}
+.chart h4{margin:0 0 2px;font-size:15px} .chart .sub{font-size:12px;color:var(--muted);margin-bottom:8px}
+.chart svg{width:100%;height:auto;display:block;overflow:visible}
+.chart svg text{fill:var(--ink2);font-size:11px}
+.chart svg .axis{stroke:var(--line)}
+.chart svg .zero{stroke:var(--muted)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--ink2);margin-top:6px;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.summary{font-size:15px;line-height:1.55}
+.summary li{margin-bottom:4px}
+.notes .it{padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+#tip{position:fixed;z-index:60;pointer-events:none;background:var(--ink);color:var(--bg);font-size:13px;padding:6px 9px;border-radius:8px;max-width:240px;display:none;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+
+/* ---------- MODAL / TOAST ---------- */
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+#modal.show{display:flex}
+#modal .box{background:var(--surface);border-radius:16px;width:min(560px,100%);max-height:90vh;overflow:auto;padding:18px}
+#modal .box h3{margin-top:0}
+#modal .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);
+  border-radius:12px;padding:10px 12px 10px 16px;display:none;align-items:center;gap:12px;z-index:40;box-shadow:0 6px 20px rgba(0,0,0,.25);max-width:92vw}
+#toast.show{display:flex}
+#toast button{background:transparent;border:1px solid currentColor;color:inherit;border-radius:8px;padding:5px 10px;font-weight:600}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:8px 14px;min-height:42px}
+.seg button.on{background:var(--sel);color:var(--sel-ink)}
+
+/* ---------- TAREAS / COMPETENCIAS ---------- */
+:root{--l1:#cde2fb;--l2:#86b6ef;--l3:#3987e5;--l4:#1c5cab;--l1i:#0d366b;--l2i:#0d366b;--l3i:#ffffff;--l4i:#ffffff}
+.lv{display:flex;gap:5px;flex-wrap:wrap}
+.lv button{min-width:48px;min-height:48px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface2);font-size:18px;font-weight:700;padding:0 6px}
+.lv button.nr{font-size:12px;min-width:44px}
+.lv button.on1{background:var(--l1);color:var(--l1i);border-color:var(--l1)} .lv button.on2{background:var(--l2);color:var(--l2i);border-color:var(--l2)}
+.lv button.on3{background:var(--l3);color:var(--l3i);border-color:var(--l3)} .lv button.on4{background:var(--l4);color:var(--l4i);border-color:var(--l4)}
+.lv button.onNR{background:var(--neu);color:var(--surface);border-color:var(--neu)}
+.lv button:disabled{opacity:.4}
+.task{border:1.5px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px;background:var(--surface)}
+.task .tn{font-weight:600;margin-bottom:6px}
+.cc{display:inline-block;font-size:11px;font-weight:700;padding:1px 6px;border-radius:6px;background:var(--surface2);color:var(--ink2);margin:0 3px 3px 0}
+.lvlegend{font-size:12px;color:var(--muted);margin:4px 0 10px}
+.evrow{display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid var(--line)}
+.evrow .nm{flex:1;min-width:120px;font-weight:600}
+.evrow .nm span{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+.tasktabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.tasktabs button{border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 12px;text-align:left;font-size:14px}
+.tasktabs button.on{background:var(--sel);color:var(--sel-ink);border-color:var(--sel)}
+.tasktabs button small{display:block;font-size:11px;opacity:.7}
+.stu .bd .t{background:var(--l1);color:var(--l1i)}
+.plan td{min-width:120px}
+.plan .ss{position:relative}
+.plan .ss .tk{display:block;font-weight:400;font-size:12px;opacity:.9;margin-top:3px}
+.plan th.today{color:var(--primary)}
+.tree .ce{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:6px}
+.tree label{display:flex;gap:8px;align-items:flex-start;padding:4px 0;font-size:14px}
+.tree label input{width:20px;height:20px;flex:none;margin-top:1px}
+.tree .crs{padding-left:26px}
+.matrix td.lvc{text-align:center;font-weight:700;border-radius:6px;min-width:44px}
+.grade{display:inline-block;min-width:34px;text-align:center;padding:2px 8px;border-radius:8px;font-weight:800;background:var(--surface2)}
+
+/* ---------- IMPRESIÓN ---------- */
+.print-only{display:none}
+@media print{
+  :root{--bg:#fff;--surface:#fff;--shadow:none}
+  header.top,nav.tabs,.noprint,#toast{display:none!important}
+  #app{display:block;height:auto} main{overflow:visible}
+  .print-only{display:block}
+  .card,.kpi,.chart{break-inside:avoid}
+  body{font-size:12px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <div class="brand">Registr<span>Aula</span></div>
+    <div class="clock" id="clock"></div>
+    <button class="btn sm" data-a="syncOpen" title="Sincronizar con otro dispositivo">⇅ Sincronizar</button>
+  </header>
+  <main id="main"></main>
+  <nav class="tabs" id="tabs"></nav>
+</div>
+<div id="modal"><div class="box" id="modalBox"></div></div>
+<div id="toast"><span id="toastMsg"></span><span id="toastBtns"></span></div>
+<div id="tip"></div>
+<input type="file" id="fileIn" accept="application/json,.json" hidden>
+
+<script>
+'use strict';
+/* =====================================================================
+   RegistrAula · registro de aula académico y conductual
+   Datos: IndexedDB del propio dispositivo (no salen de la tablet).
+   ===================================================================== */
+
+// ---------- Constantes ----------
+const CATS = [
+  {k:'Conducta', area:'C'},
+  {k:'Relación social', area:'C'},
+  {k:'Hábitos y autonomía', area:'C'},
+  {k:'Participación', area:'A'},
+  {k:'Tarea', area:'A'},
+  {k:'Evaluación', area:'A'}
+];
+const AREA = Object.fromEntries(CATS.map(c=>[c.k,c.area]));
+const DAYS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const DAYS_L = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const LEVELS = {1:'No conseguido', 2:'En proceso', 3:'Conseguido', 4:'Destacado'};
+const GRADES = ['IN','SU','BI','NT','SB'];
+const NIVELES = [['I3','Inf. 3 años'],['I4','Inf. 4 años'],['I5','Inf. 5 años'],['1','1.º'],['2','2.º'],['3','3.º'],['4','4.º'],['5','5.º'],['6','6.º']];
+const lvLabel = c => (NIVELES.find(n => n[0] === c) || [c, c])[1];
+const lvMatch = (arr, lv) => !lv || !arr || !arr.length || arr.includes(lv);
+const lvChips = arr => (arr && arr.length) ? arr.slice().sort((a,b)=>NIVELES.findIndex(n=>n[0]===a)-NIVELES.findIndex(n=>n[0]===b)).map(c => `<span class="cc" style="background:var(--l1);color:var(--l1i)">${lvLabel(c)}</span>`).join('') : '';
+const lvChecks = (cls, sel, onch='') => `<div class="row small">` + NIVELES.map(([c,l]) => `<label class="row" style="gap:4px"><input type="checkbox" class="${cls}" value="${c}" ${sel && sel.includes(c) ? 'checked' : ''} ${onch} style="width:20px;height:20px"> ${l}</label>`).join('') + `</div>`;
+const lvSelect = (dc, cur, allLbl='Todos los niveles') => `<select data-c="${dc}"><option value="">${allLbl}</option>${NIVELES.map(([c,l]) => `<option value="${c}" ${cur===c?'selected':''}>${l}</option>`).join('')}</select>`;
+// Niveles efectivos de una tarea: los suyos o, si no tiene, los de sus criterios
+function taskLevels(t){
+  if ((t.levels||[]).length) return t.levels;
+  const set = new Set(); (t.critIds||[]).forEach(id => { const k = byId(state.criterios, id); (k && k.levels || []).forEach(l => set.add(l)); });
+  return [...set];
+}
+const COLLS = ['groups','students','subjects','indicators','schedule','competencias','criterios','tareas','plan'];
+const GRADE_L = {IN:'Insuficiente', SU:'Suficiente', BI:'Bien', NT:'Notable', SB:'Sobresaliente'};
+const PALETTE = ['#2a78d6','#eb6834','#1baf7a','#eda100','#e87ba4','#008300','#4a3aa7','#e34948','#6b6a65'];
+
+// ---------- Utilidades ----------
+const $ = s => document.querySelector(s);
+const uid = () => Math.random().toString(36).slice(2,9) + Date.now().toString(36).slice(-4);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2,'0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const hm = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const parseYmd = s => { const [y,m,d] = String(s).split('-').map(Number); return new Date(y, m-1, d); };
+const fmtDate = ts => { const d = new Date(ts); return `${DAYS[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}`; };
+const fmtNum = (n, dec=1) => (n == null || isNaN(n)) ? '–' : n.toLocaleString('es-ES',{maximumFractionDigits:dec, minimumFractionDigits:dec});
+const monday = d => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); const w = (x.getDay()+6)%7; x.setDate(x.getDate()-w); return x; };
+const byId = (arr, id) => arr.find(x => x.id === id);
+const norm = r => (r.mode === 'score' && r.val != null && r.max > r.min) ? (r.val - r.min) / (r.max - r.min) * 10 : null;
+const mean = a => a.length ? a.reduce((s,x)=>s+x,0)/a.length : null;
+const inkOn = hex => { const n = parseInt(hex.slice(1),16), r=(n>>16)&255, g=(n>>8)&255, b=n&255; return (0.299*r+0.587*g+0.114*b) > 150 ? '#1b1b1a' : '#ffffff'; };
+const splitName = n => { const p = String(n).trim().split(/\s+/); return {first:p[0]||'', rest:p.slice(1).join(' ')}; };
+
+// ---------- Estado ----------
+let state = null;       // configuración
+let records = [];       // registros
+const ui = {
+  view: 'aula', sel: new Set(), manual: null, last: null, pending: null, note: '', lastBatch: [],
+  hist: { date: ymd(new Date()), gid: '', sid: '', subj: '' },
+  rep: { gid: '', sid: '', subj: '', period: '4sem', from: '', to: '' },
+  cfg: { tab: 'grupos', gid: '', indSubj: 'todas' }
+};
+
+function defaultState(){
+  const subjects = [
+    'Lengua Castellana','Valencià','Matemáticas','Inglés','Conocimiento del Medio',
+    'Educación Artística','Educación Física','Religión / At. Educativa','Tutoría'
+  ].map((name,i)=>({id:uid(), name, color: PALETTE[i % PALETTE.length]}));
+  const S = n => subjects.find(s=>s.name===n).id;
+  const I = (name, cat, v, subj='*', mode='count', min=0, max=0) => ({id:uid(), name, cat, v, subjectId:subj, mode, min, max, active:true});
+  const indicators = [
+    I('Respeta las normas','Conducta',1),
+    I('Interrumpe / habla sin turno','Conducta',-1),
+    I('Se levanta sin permiso','Conducta',-1),
+    I('No sigue instrucciones','Conducta',-1),
+    I('Conflicto con compañero','Conducta',-1),
+    I('Ayuda a un compañero','Relación social',1),
+    I('Coopera en el grupo','Relación social',1),
+    I('Trabaja con autonomía','Hábitos y autonomía',1),
+    I('Desconectado de la tarea','Hábitos y autonomía',-1),
+    I('Olvida el material','Hábitos y autonomía',-1),
+    I('Participa aportando','Participación',1),
+    I('Participación oral','Participación',0,'*','score',1,4),
+    I('Tarea completada','Tarea',1),
+    I('Tarea sin terminar','Tarea',-1),
+    I('Calidad del trabajo','Tarea',0,'*','score',1,4),
+    I('Lectura en voz alta','Evaluación',0,S('Lengua Castellana'),'score',1,4),
+    I('Comprensión lectora','Evaluación',0,S('Lengua Castellana'),'score',0,10),
+    I('Dictado','Evaluación',0,S('Lengua Castellana'),'score',0,10),
+    I('Lectura en veu alta','Evaluación',0,S('Valencià'),'score',1,4),
+    I('Cálculo mental','Evaluación',0,S('Matemáticas'),'score',0,10),
+    I('Resolución de problemas','Evaluación',0,S('Matemáticas'),'score',1,4),
+    I('Speaking','Evaluación',0,S('Inglés'),'score',1,4),
+    I('Vocabulary','Evaluación',0,S('Inglés'),'score',0,10)
+  ];
+  return migrate({ v:1, groups:[], students:[], subjects, indicators, schedule:[],
+           prefs:{ deselect:false }, lastBackup:null, created:Date.now() });
+}
+// Actualiza datos de versiones anteriores sin perder nada
+function migrate(s){
+  if (!s.v || s.v < 2){
+    s.competencias = s.competencias || [];   // {id, subjectId, code, text}
+    s.criterios = s.criterios || [];         // {id, compId, code, text}
+    s.tareas = s.tareas || [];               // {id, subjectId, name, desc, compIds[], critIds[], active}
+    s.plan = s.plan || [];                   // {id, date, gid, subj, start, taskIds[]}
+    s.prefs = Object.assign({}, s.prefs || {}, {deselect:false});
+    s.v = 2;
+  }
+  if (s.v < 3){
+    (s.criterios||[]).forEach(k => { if (!k.levels) k.levels = []; });
+    (s.tareas||[]).forEach(t => { if (!t.levels) t.levels = []; });
+    s.tomb = s.tomb || {};   // id → fecha de borrado (para sincronizar borrados)
+    s.v = 3;
+  }
+  s.tomb = s.tomb || {};
+  s.prefs = Object.assign({deselect:false, cuts:[2, 2.5, 3, 3.5], device:''}, s.prefs || {});
+  return s;
+}
+// ---------- Currículo y tareas ----------
+const compsOf = subj => state.competencias.filter(c => c.subjectId === subj).sort((a,b)=>a.code.localeCompare(b.code,'es',{numeric:true}));
+const critsOf = compId => state.criterios.filter(c => c.compId === compId).sort((a,b)=>a.code.localeCompare(b.code,'es',{numeric:true}));
+const tasksOf = subj => state.tareas.filter(t => t.subjectId === subj && t.active !== false).sort((a,b)=>a.name.localeCompare(b.name,'es'));
+function taskComps(t){ // competencias de una tarea: las marcadas + las de sus criterios
+  const set = new Set(t.compIds || []);
+  (t.critIds || []).forEach(id => { const cr = byId(state.criterios, id); if (cr) set.add(cr.compId); });
+  return [...set];
+}
+function taskCodes(t){
+  const cs = taskComps(t).map(id => byId(state.competencias,id)).filter(Boolean).sort((a,b)=>a.code.localeCompare(b.code,'es',{numeric:true}));
+  return cs.map(c => { const crs = (t.critIds||[]).map(id=>byId(state.criterios,id)).filter(cr=>cr && cr.compId===c.id).map(cr=>cr.code);
+    return `<span class="cc" title="${esc(c.text)}">${esc(c.code)}${crs.length?' · '+crs.map(esc).join(', '):''}</span>`; }).join('');
+}
+const gradeFor = avg => { if (avg == null) return null; const c = state.prefs.cuts; let i = 0; while (i < c.length && avg >= c[i]) i++; return GRADES[i]; };
+const lvlName = v => v == null ? 'No realizada' : LEVELS[v] || v;
+// Evaluaciones de tarea: si hay varias del mismo alumno y tarea, vale la última
+function latestTaskEvals(recs){
+  const m = new Map();
+  recs.forEach(r => { if (r.task) { const k = r.sid+'|'+r.task; const p = m.get(k); if (!p || r.ts >= p.ts) m.set(k, r); } });
+  return [...m.values()];
+}
+const dedupeTasks = recs => recs.filter(r => !r.task).concat(latestTaskEvals(recs));
+// Nivel medio por competencia y criterio (escala 1–4) a partir de las evaluaciones vigentes
+function compLevels(recs){
+  const comp = {}, crit = {};
+  latestTaskEvals(recs).forEach(r => { if (r.val == null) return;
+    (r.comp||[]).forEach(id => (comp[id] || (comp[id]=[])).push(r.val));
+    (r.crit||[]).forEach(id => (crit[id] || (crit[id]=[])).push(r.val)); });
+  const f = o => Object.fromEntries(Object.entries(o).map(([k,a]) => [k, {avg:mean(a), n:a.length}]));
+  return {comp:f(comp), crit:f(crit)};
+}
+
+// ---------- Almacenamiento (IndexedDB) ----------
+let db = null;
+function openDB(){
+  return new Promise((res, rej) => {
+    const rq = indexedDB.open('registraula', 1);
+    rq.onupgradeneeded = () => {
+      const d = rq.result;
+      if (!d.objectStoreNames.contains('kv')) d.createObjectStore('kv');
+      if (!d.objectStoreNames.contains('records')) d.createObjectStore('records', {keyPath:'id'});
+    };
+    rq.onsuccess = () => res(rq.result);
+    rq.onerror = () => rej(rq.error);
+  });
+}
+function tx(store, mode, fn){
+  return new Promise((res, rej) => {
+    const t = db.transaction(store, mode); const s = t.objectStore(store);
+    const out = fn(s);
+    t.oncomplete = () => res(out instanceof IDBRequest ? out.result : undefined);
+    t.onerror = () => rej(t.error);
+  });
+}
+// Marcas de cambio para sincronizar: cada elemento guarda _u (última modificación) y los borrados quedan en state.tomb
+let snap = new Map();
+const stripU = e => { const {_u, ...r} = e; return JSON.stringify(r); };
+function buildSnap(){ snap = new Map(); COLLS.forEach(c => (state[c]||[]).forEach(e => snap.set(e.id, stripU(e)))); }
+function stamp(){
+  const now = Date.now(), seen = new Set();
+  COLLS.forEach(c => (state[c]||[]).forEach(e => { seen.add(e.id); const j = stripU(e); if (snap.get(e.id) !== j) { e._u = now; snap.set(e.id, j); } }));
+  for (const id of [...snap.keys()]) if (!seen.has(id)) { state.tomb[id] = now; snap.delete(id); }
+}
+const saveState = (noStamp) => { if (noStamp !== true) stamp(); return tx('kv','readwrite', s => s.put(state, 'state')).catch(err => alert('Error guardando: ' + err)); };
+const putRecords = (recs, keepU) => { const now = Date.now(); if (!keepU) recs.forEach(r => r._u = now);
+  return tx('records','readwrite', s => { recs.forEach(r => s.put(r)); }).catch(err => alert('Error guardando: ' + err)); };
+const rawDel = ids => tx('records','readwrite', s => { ids.forEach(id => s.delete(id)); });
+const delRecords = ids => { const now = Date.now(); ids.forEach(id => state.tomb[id] = now); saveState(); return rawDel(ids); };
+async function loadAll(){
+  db = await openDB();
+  state = await tx('kv','readonly', s => s.get('state'));
+  records = await tx('records','readonly', s => s.getAll()) || [];
+  if (!state) state = defaultState();
+  state = migrate(state); buildSnap(); await saveState(true);
+  records.sort((a,b) => a.ts - b.ts);
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{});
+}
+
+// ---------- Contexto de sesión según el horario ----------
+function currentContext(){
+  const now = new Date(), d = now.getDay(), t = hm(now);
+  const auto = state.schedule.find(s => s.day === d && s.start <= t && t < s.end);
+  const key = (auto ? auto.id : 'none') + ymd(now);
+  const valid = (gid, subj) => byId(state.groups, gid) && byId(state.subjects, subj);
+  const today = ymd(now);
+  // Sesión abierta desde "Plan" (puede ser de otro día): se mantiene hasta volver al horario
+  if (ui.manual && ui.manual.pinned && valid(ui.manual.gid, ui.manual.subj))
+    return {gid:ui.manual.gid, subj:ui.manual.subj, date:ui.manual.date, start:ui.manual.start, src:'plan', auto, key};
+  if (ui.manual && ui.manual.key === key && valid(ui.manual.gid, ui.manual.subj))
+    return {gid:ui.manual.gid, subj:ui.manual.subj, date:today, start:slotStart(today, ui.manual.gid, ui.manual.subj), src:'manual', auto, key};
+  if (auto && valid(auto.groupId, auto.subjectId))
+    return {gid:auto.groupId, subj:auto.subjectId, date:today, start:auto.start, src:'horario', auto, key};
+  const gid = (ui.last && byId(state.groups, ui.last.gid)) ? ui.last.gid : (state.groups[0] || {}).id;
+  const subj = (ui.last && byId(state.subjects, ui.last.subj)) ? ui.last.subj
+             : ((state.subjects.find(s=>s.name==='Tutoría') || state.subjects[0] || {}).id);
+  return {gid, subj, date:today, start:slotStart(today, gid, subj), src:'libre', auto:null, key};
+}
+// Primera sesión del horario de ese grupo y materia en esa fecha ('' si no hay)
+function slotStart(date, gid, subj){
+  const d = parseYmd(date).getDay();
+  const s = state.schedule.filter(x => x.day === d && x.groupId === gid && x.subjectId === subj).sort((a,b)=>a.start.localeCompare(b.start));
+  return s.length ? s[0].start : '';
+}
+// Plan de una sesión concreta
+function planFor(date, gid, subj, start){
+  return state.plan.find(p => p.date === date && p.gid === gid && p.subj === subj && p.start === (start||''))
+      || (!start ? state.plan.find(p => p.date === date && p.gid === gid && p.subj === subj) : null);
+}
+function ensurePlan(date, gid, subj, start){
+  let p = state.plan.find(p => p.date === date && p.gid === gid && p.subj === subj && p.start === (start||''));
+  if (!p) { p = {id:uid(), date, gid, subj, start:start||'', taskIds:[]}; state.plan.push(p); }
+  return p;
+}
+const planTasks = p => p ? p.taskIds.map(id => byId(state.tareas, id)).filter(Boolean) : [];
+// Evaluaciones de una tarea en una sesión (fecha) para un grupo
+const sessionEvals = (date, gid, taskId) => records.filter(r => r.task === taskId && r.gid === gid && r.date === date);
+const studentsOf = gid => state.students.filter(s => s.groupId === gid && s.active !== false);
+const indicatorsFor = subj => state.indicators.filter(i => i.active !== false && (i.subjectId === '*' || i.subjectId === subj));
+
+// ---------- Render general ----------
+const ICONS = {
+  aula:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h4M7 13h10M7 17h6"/></svg>',
+  plan:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M8 15l2 2 4-4"/></svg>',
+  historial:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  informes:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+  ajustes:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>'
+};
+function renderTabs(){
+  const t = [['aula','Aula'],['plan','Plan'],['historial','Historial'],['informes','Informes'],['ajustes','Ajustes']];
+  $('#tabs').innerHTML = t.map(([k,l]) => `<button data-a="tab" data-v="${k}" class="${ui.view===k?'on':''}">${ICONS[k]}${l}</button>`).join('');
+}
+function render(){
+  renderTabs();
+  const scroll = $('#main').scrollTop;
+  $('#main').innerHTML = VIEWS[ui.view]();
+  if (ui.keepScroll) { $('#main').scrollTop = scroll; ui.keepScroll = false; }
+}
+const rerender = () => { ui.keepScroll = true; render(); };
+
+function tickClock(){
+  const n = new Date();
+  $('#clock').textContent = `${DAYS_L[n.getDay()]} ${n.getDate()}/${n.getMonth()+1} · ${hm(n)}`;
+}
+
+// ===================================================================
+//   VISTA AULA
+// ===================================================================
+function selectOptions(arr, sel, extra=''){
+  return extra + arr.map(x => `<option value="${x.id}" ${x.id===sel?'selected':''}>${esc(x.name)}</option>`).join('');
+}
+function viewAula(){
+  if (!state.groups.length) return `<div class="wrap"><div class="card empty">
+    <h2>Bienvenido a RegistrAula</h2>
+    <p>Para empezar, crea tu grupo y añade el alumnado. Después, introduce el horario para que la aplicación sepa en qué sesión estás.</p>
+    <div class="row" style="justify-content:center">
+      <button class="btn pri" data-a="goCfg" data-v="grupos">Crear grupo y alumnado</button>
+      <button class="btn" data-a="demo">Probar con datos de ejemplo</button>
+    </div></div></div>`;
+  const ctx = currentContext();
+  ui.ctxKey = ctx.key;
+  const subj = byId(state.subjects, ctx.subj) || {};
+  const studs = studentsOf(ctx.gid);
+  const isToday = ctx.date === ymd(new Date());
+  const todays = records.filter(r => r.gid === ctx.gid && r.subj === ctx.subj && recDate(r) === ctx.date);
+  const cnt = {};
+  todays.filter(r=>!r.task).forEach(r => { const c = cnt[r.sid] || (cnt[r.sid] = {p:0,n:0,s:0}); if (r.v>0) c.p++; else if (r.v<0) c.n++; else c.s++; });
+  const plan = planFor(ctx.date, ctx.gid, ctx.subj, ctx.start);
+  const tasks = planTasks(plan);
+  const done = {}; // tareas evaluadas por alumno en esta sesión
+  tasks.forEach(t => sessionEvals(ctx.date, ctx.gid, t.id).forEach(r => { done[r.sid] = (done[r.sid]||0) + 1; }));
+  if (!tasks.length) ui.evalMode = 'alumno';
+  const srcLbl = {horario:'según el horario', manual:'elegida a mano', libre:'fuera de horario', plan:'sesión abierta desde el plan'}[ctx.src];
+  const backupWarn = records.length > 20 && (!state.lastBackup || Date.now() - state.lastBackup > 7*864e5);
+
+  let h = `<div class="wrap">`;
+  if (backupWarn) h += `<div class="banner noprint">⚠︎ ${state.lastBackup ? 'Hace más de una semana de tu última copia de seguridad.' : 'Aún no has hecho ninguna copia de seguridad.'}
+     Los datos solo están en esta tablet. <button class="btn sm" data-a="backup">Hacer copia ahora</button></div>`;
+  if (!isToday) h += `<div class="banner">📅 Estás evaluando la sesión del <b>${DAYS_L[parseYmd(ctx.date).getDay()]} ${parseYmd(ctx.date).toLocaleDateString('es-ES')}${ctx.start?' a las '+ctx.start:''}</b>. Lo que anotes se guarda con esa fecha.
+     <button class="btn sm" data-a="ctxReset">Volver a hoy</button></div>`;
+  h += `<div class="session">
+      <span class="pill"><span class="dot" style="background:${subj.color||'#999'}"></span><b>${esc(subj.name||'')}</b>
+        <span class="muted">· ${srcLbl}${ctx.auto && ctx.src==='horario'?` (${ctx.auto.start}–${ctx.auto.end})`:''}</span></span>
+      ${ctx.src==='plan' ? '' : `<select data-c="ctxG" aria-label="Grupo">${selectOptions(state.groups, ctx.gid)}</select>
+      <select data-c="ctxS" aria-label="Materia">${selectOptions(state.subjects, ctx.subj)}</select>`}
+      ${ctx.src==='manual'?`<button class="btn sm ghost" data-a="ctxReset">Volver al horario</button>`:''}
+      <button class="btn sm" data-a="planHere">📋 ${tasks.length ? `${tasks.length} tarea${tasks.length>1?'s':''}` : 'Planificar tareas'}</button>
+      ${tasks.length ? `<span class="seg"><button data-a="evalMode" data-v="alumno" class="${ui.evalMode!=='tarea'?'on':''}">Por alumno</button><button data-a="evalMode" data-v="tarea" class="${ui.evalMode==='tarea'?'on':''}">Por tarea</button></span>
+        <button class="btn sm ghost" data-a="carry">Pasar pendientes ›</button>` : ''}
+    </div>`;
+
+  if (ui.evalMode === 'tarea' && tasks.length) return h + evalByTask(ctx, tasks, studs) + `</div>`;
+
+  h += `<div class="aula"><section>
+      <div class="row" style="margin-bottom:8px">
+        <button class="btn sm" data-a="selAll">Todos</button>
+        <button class="btn sm" data-a="selNone">Ninguno</button>
+        <span class="muted small">${ui.sel.size ? `${ui.sel.size} seleccionado${ui.sel.size>1?'s':''}` : 'Toca uno o varios alumnos'}</span>
+      </div>`;
+  if (!studs.length) h += `<div class="card empty">Este grupo no tiene alumnado. <button class="btn sm" data-a="goCfg" data-v="grupos">Añadir</button></div>`;
+  h += `<div class="stu-grid">` + studs.map(s => {
+      const c = cnt[s.id], nm = splitName(s.name);
+      return `<button class="stu ${ui.sel.has(s.id)?'on':''}" data-a="selStu" data-id="${s.id}">${esc(nm.first)}
+        <span class="sur">${esc(nm.rest)||'&nbsp;'}</span>
+        <span class="bd">${tasks.length?`<b class="t">✓${done[s.id]||0}/${tasks.length}</b>`:''}${c&&c.p?`<b class="p">+${c.p}</b>`:''}${c&&c.n?`<b class="n">−${c.n}</b>`:''}${c&&c.s?`<b class="s">${c.s}</b>`:''}</span></button>`;
+    }).join('') + `</div></section>`;
+
+  // Panel lateral
+  const inds = indicatorsFor(ctx.subj);
+  const dis = ui.sel.size ? '' : 'disabled';
+  h += `<section class="panel"><div class="card">`;
+  h += `<input type="text" data-i="note" placeholder="Nota opcional para la próxima anotación…" value="${esc(ui.note)}" style="width:100%">`;
+  if (tasks.length){
+    const one = ui.sel.size === 1 ? [...ui.sel][0] : null;
+    h += `<div class="catlbl">Tareas de esta sesión</div><div class="lvlegend">1 No conseguido · 2 En proceso · 3 Conseguido · 4 Destacado</div>` +
+      tasks.map(t => {
+        const cur = one ? sessionEvals(ctx.date, ctx.gid, t.id).find(r => r.sid === one) : null;
+        return `<div class="task"><div class="tn">${esc(t.name)}</div><div>${taskCodes(t)}</div>${lvButtons(t.id, cur, '', dis)}</div>`;
+      }).join('');
+  }
+  if (ui.pending){
+    const ind = byId(state.indicators, ui.pending);
+    if (ind){
+      const range = ind.max - ind.min;
+      h += `<div class="picker"><div class="row" style="justify-content:space-between"><b>${esc(ind.name)}</b>
+            <span class="muted small">valor de ${ind.min} a ${ind.max}</span></div>`;
+      if (range <= 10 && Number.isInteger(ind.min) && Number.isInteger(ind.max)){
+        h += `<div class="vals">` + Array.from({length:range+1},(_,i)=>ind.min+i).map(v=>`<button data-a="pickVal" data-v="${v}">${v}</button>`).join('') + `</div>`;
+      } else {
+        h += `<div class="row" style="margin-top:8px"><input type="number" id="pickNum" step="any" min="${ind.min}" max="${ind.max}" style="width:120px">
+              <button class="btn pri" data-a="pickNum">Guardar</button></div>`;
+      }
+      h += `<div style="margin-top:8px"><button class="btn sm ghost" data-a="pickCancel">Cancelar</button></div></div>`;
+    }
+  }
+  CATS.forEach(c => {
+    const list = inds.filter(i => i.cat === c.k);
+    if (!list.length) return;
+    h += `<div class="catlbl">${esc(c.k)}</div><div class="inds">` + list.map(i => {
+      const cls = i.mode==='score' ? 'z' : (i.v>0?'p':i.v<0?'n':'z');
+      const sg = i.mode==='score' ? `${i.min}–${i.max}` : (i.v>0?'+':i.v<0?'−':'•');
+      return `<button class="ind ${cls} ${ui.pending===i.id?'pend':''}" data-a="ind" data-id="${i.id}" ${dis}><span class="sg">${sg}</span>${esc(i.name)}</button>`;
+    }).join('') + `</div>`;
+  });
+  h += `<div class="row" style="margin-top:12px"><button class="btn" data-a="freeObs" ${dis}>✎ Observación libre</button></div>`;
+
+  // Últimos registros de la sesión
+  const lastRecs = todays.slice().sort((a,b)=>a.ts-b.ts).slice(-6).reverse();
+  if (lastRecs.length){
+    h += `<div class="feed"><div class="catlbl">${isToday?'Hoy':'En esta sesión'} en esta materia</div>` + lastRecs.map(r => {
+      const s = byId(state.students, r.sid);
+      return `<div class="it">${chipFor(r)}<span style="flex:1"><b>${esc(s?splitName(s.name).first:'?')}</b> · ${esc(r.name)}${r.note?` <span class="muted">— ${esc(r.note)}</span>`:''}</span>
+        <span class="muted small">${hm(new Date(r.ts))}</span><button class="btn sm ghost" data-a="editRec" data-id="${r.id}">Editar</button></div>`;
+    }).join('') + `</div>`;
+  }
+  h += `</div></section></div></div>`;
+  return h;
+}
+const recDate = r => r.date || ymd(new Date(r.ts));
+// Botonera de niveles: NR, 1, 2, 3, 4
+function lvButtons(taskId, cur, sid, dis=''){
+  const on = v => cur && (v === 'NR' ? cur.val == null : cur.val === v) ? (v === 'NR' ? 'onNR' : 'on'+v) : '';
+  const b = (v, lbl, cls='') => `<button class="${cls} ${on(v)}" data-a="evalTask" data-task="${taskId}" data-v="${v}" ${sid?`data-sid="${sid}"`:''} ${dis} title="${v==='NR'?'No realizada':LEVELS[v]}">${lbl}</button>`;
+  return `<div class="lv">${b('NR','No<br>realiz.','nr')}${[1,2,3,4].map(v=>b(v,v)).join('')}</div>`;
+}
+// Modo "Por tarea": una tarea, todo el grupo en lista
+function evalByTask(ctx, tasks, studs){
+  if (!tasks.some(t => t.id === ui.evalTask)) ui.evalTask = tasks[0].id;
+  const t = byId(state.tareas, ui.evalTask);
+  const evs = sessionEvals(ctx.date, ctx.gid, t.id);
+  let h = `<div class="tasktabs">` + tasks.map(x => { const n = sessionEvals(ctx.date, ctx.gid, x.id).length;
+      return `<button data-a="pickTask" data-id="${x.id}" class="${x.id===t.id?'on':''}">${esc(x.name)}<small>${n}/${studs.length} evaluados</small></button>`; }).join('') + `</div>`;
+  h += `<div class="card"><div class="row" style="justify-content:space-between"><div><b>${esc(t.name)}</b><div>${taskCodes(t)}</div></div>
+      <input type="text" data-i="note" placeholder="Nota opcional para la próxima evaluación…" value="${esc(ui.note)}" style="min-width:260px"></div>
+      <div class="lvlegend">1 No conseguido · 2 En proceso · 3 Conseguido · 4 Destacado · Vuelve a tocar el mismo nivel para quitarlo</div>` +
+    studs.map(s => { const nm = splitName(s.name), cur = evs.find(r => r.sid === s.id);
+      return `<div class="evrow"><div class="nm">${esc(nm.first)}<span>${esc(nm.rest)}</span></div>${lvButtons(t.id, cur, s.id)}</div>`; }).join('') + `</div>`;
+  return h;
+}
+function ctxTs(ctx){
+  if (ctx.date === ymd(new Date())) return Date.now();
+  const [h,m] = (ctx.start || '12:00').split(':').map(Number);
+  const d = parseYmd(ctx.date); d.setHours(h, m + 5, 0, 0); return d.getTime();
+}
+function evalTask(taskId, sids, v){
+  const ctx = currentContext(), t = byId(state.tareas, taskId); if (!t || !sids.length) return;
+  const val = v === 'NR' ? null : Number(v), note = ui.note.trim();
+  const put = [], del = [];
+  sids.forEach(sid => {
+    const ex = sessionEvals(ctx.date, ctx.gid, taskId).find(r => r.sid === sid);
+    if (ex && ex.val === val && sids.length === 1) { del.push(ex.id); return; }   // mismo nivel otra vez: se quita
+    if (ex) { ex.val = val; ex.nr = val == null; if (note) ex.note = note; put.push(ex); return; }
+    put.push({id:uid(), ts:ctxTs(ctx), date:ctx.date, sid, gid:ctx.gid, subj:ctx.subj, task:taskId, name:t.name,
+      cat:'Evaluación', area:'A', v:0, mode:'score', val, min:1, max:4, nr: val == null,
+      comp: taskComps(t), crit: (t.critIds||[]).slice(), note});
+  });
+  if (del.length) { records = records.filter(r => !del.includes(r.id)); delRecords(del); }
+  const fresh = put.filter(r => !records.includes(r)); records.push(...fresh);
+  if (put.length) putRecords(put);
+  ui.lastBatch = fresh.map(r => r.id); ui.note = ''; ui.last = {gid:ctx.gid, subj:ctx.subj};
+  const who = sids.length > 3 ? sids.length+' alumnos' : sids.map(id=>splitName((byId(state.students,id)||{}).name||'').first).join(', ');
+  toast(del.length ? `Evaluación quitada · ${who}` : `${t.name}: ${lvlName(val)} → ${who}`, fresh.length ? [['Deshacer','undo']] : []);
+  rerender();
+  if (navigator.vibrate) navigator.vibrate(15);
+}
+function chipFor(r){
+  if (r.task) return r.val == null ? `<span class="chip z">NR</span>` : `<span class="chip z" style="background:var(--l${r.val});color:var(--l${r.val}i)">${r.val}</span>`;
+  if (r.mode === 'score') return `<span class="chip z">${fmtNum(r.val, Number.isInteger(r.val)?0:1)}/${r.max}</span>`;
+  if (r.v > 0) return `<span class="chip p">+</span>`;
+  if (r.v < 0) return `<span class="chip n">−</span>`;
+  return `<span class="chip z">•</span>`;
+}
+
+function addRecords(ind, val, extra={}){
+  const ctx = currentContext();
+  const ts = ctxTs(ctx);
+  const note = (extra.note != null ? extra.note : ui.note).trim();
+  const recs = [...ui.sel].map(sid => ({
+    id: uid(), ts, date: ctx.date, sid, gid: ctx.gid, subj: ctx.subj,
+    ind: ind.id || null, name: ind.name, cat: ind.cat, area: AREA[ind.cat] || 'C',
+    v: ind.mode === 'score' ? 0 : ind.v, mode: ind.mode,
+    val: val, min: ind.min, max: ind.max, note
+  }));
+  if (!recs.length) return;
+  records.push(...recs);
+  putRecords(recs);
+  ui.lastBatch = recs.map(r => r.id);
+  ui.last = {gid: ctx.gid, subj: ctx.subj};
+  const names = recs.map(r => splitName((byId(state.students,r.sid)||{}).name||'').first);
+  toast(`${ind.name} → ${names.length>3 ? names.length+' alumnos' : names.join(', ')}`, [['Deshacer','undo'], ...(note?[]:[['+ Nota','noteLast']])]);
+  if (state.prefs.deselect) ui.sel.clear();
+  ui.note = ''; ui.pending = null;
+  rerender();
+  if (navigator.vibrate) navigator.vibrate(15);
+}
+
+// ===================================================================
+//   VISTA PLAN (tareas por sesión concreta)
+// ===================================================================
+function viewPlan(){
+  if (!state.groups.length) return `<div class="wrap"><div class="card empty">Crea primero un grupo y el horario en Ajustes.</div></div>`;
+  const wk = ui.planWeek ? parseYmd(ui.planWeek) : monday(new Date());
+  const days = [0,1,2,3,4].map(i => { const d = new Date(wk); d.setDate(d.getDate()+i); return d; });
+  const today = ymd(new Date());
+  const slots = [...new Set(state.schedule.map(s=>s.start+'|'+s.end))].sort();
+  let h = `<div class="wrap"><div class="row" style="justify-content:space-between;margin-bottom:12px">
+      <h2 style="margin:0">Plan de tareas</h2>
+      <div class="row"><button class="btn sm" data-a="planWeek" data-v="-7">‹</button>
+      <b>Semana del ${wk.getDate()}/${wk.getMonth()+1}</b><button class="btn sm" data-a="planWeek" data-v="7">›</button>
+      <button class="btn sm" data-a="planWeek" data-v="0">Hoy</button></div></div>`;
+  if (!slots.length) return h + `<div class="card empty">Aún no hay horario. <button class="btn sm" data-a="goCfg" data-v="horario">Crear horario</button></div></div>`;
+  if (!state.tareas.length) h += `<div class="banner">Todavía no hay tareas. Créalas en <button class="btn sm" data-a="goCfg" data-v="tareas">Ajustes › Tareas</button> (antes, las competencias y criterios en "Currículo").</div>`;
+  h += `<div class="card"><div style="overflow:auto"><table class="sched plan"><thead><tr><th></th>` +
+    days.map(d => `<th class="${ymd(d)===today?'today':''}">${DAYS[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}</th>`).join('') + `</tr></thead><tbody>` +
+    slots.map(sl => { const [a,b] = sl.split('|');
+      return `<tr><th class="small" style="white-space:nowrap">${a}<br>${b}</th>` + days.map(d => `<td>` +
+        state.schedule.filter(s => s.day === d.getDay() && s.start === a && s.end === b).map(s => {
+          const m = byId(state.subjects, s.subjectId) || {}, g = byId(state.groups, s.groupId) || {};
+          const p = planFor(ymd(d), s.groupId, s.subjectId, s.start), ts = planTasks(p);
+          return `<button class="ss" style="background:${m.color||'#888'};color:${inkOn(m.color||'#888')}" data-a="planSess" data-date="${ymd(d)}" data-gid="${s.groupId}" data-subj="${s.subjectId}" data-start="${s.start}">
+            <b>${esc(m.name||'?')}</b> · ${esc(g.name||'')}${ts.length ? ts.map(t=>`<span class="tk">• ${esc(t.name)}</span>`).join('') : `<span class="tk">+ tareas</span>`}</button>`;
+        }).join('') + `</td>`).join('') + `</tr>`; }).join('') + `</tbody></table></div></div>
+    <p class="muted small">Toca una sesión para elegir qué tareas vas a trabajar. Desde ahí también puedes abrirla para evaluar (por ejemplo, una sesión pasada).</p></div>`;
+  return h;
+}
+function planModal(date, gid, subj, start){
+  ui.planCtx = {date, gid, subj, start};
+  const p = planFor(date, gid, subj, start), sel = new Set(p ? p.taskIds : []);
+  const m = byId(state.subjects, subj) || {}, g = byId(state.groups, gid) || {};
+  const glv = (byId(state.groups, gid) || {}).level || '';
+  const all = tasksOf(subj);
+  // Con nivel de grupo: solo las tareas de ese nivel (y las ya planificadas). Las que no tienen nivel van aparte.
+  const list = glv ? all.filter(t => taskLevels(t).includes(glv) || sel.has(t.id)) : all;
+  const noLv = glv ? all.filter(t => !taskLevels(t).length && !sel.has(t.id)) : [];
+  const item = t => { const n = sessionEvals(date, gid, t.id).length;
+    return `<label><input type="checkbox" class="pTask" value="${t.id}" ${sel.has(t.id)?'checked':''}><span><b>${esc(t.name)}</b> ${lvChips(taskLevels(t))}${n?` <span class="muted small">(${n} evaluados)</span>`:''}<br>${taskCodes(t)}</span></label>`; };
+  const d = parseYmd(date);
+  showModal(`<h3>${esc(m.name||'')} · ${esc(g.name||'')}${glv?` <span class="cc" style="background:var(--l1);color:var(--l1i)">${lvLabel(glv)}</span>`:''}</h3>
+    <p class="muted small" style="margin-top:-6px">${DAYS_L[d.getDay()]} ${d.toLocaleDateString('es-ES')}${start?' · '+start:''}</p>
+    ${glv ? '' : `<div class="banner"><span>Este grupo no tiene nivel, por eso salen todas las tareas. Indica su curso:</span>${lvSelect('planGroupLv', '', 'Elegir…')}</div>`}
+    ${list.length ? `<div class="tree">` + list.map(item).join('') + `</div>`
+      : `<p class="muted">No hay tareas de ${esc(m.name||'esta materia')}${glv?' para '+lvLabel(glv):''}. Créalas en Ajustes › Tareas eligiendo el nivel ${glv?lvLabel(glv):''}.</p>`}
+    ${noLv.length ? `<details style="margin-top:6px"><summary class="small ink2" style="cursor:pointer">Tareas sin nivel asignado (${noLv.length})</summary><div class="tree">${noLv.map(item).join('')}</div>
+      <p class="muted small">Asígnales nivel en Ajustes › Tareas › "Asignar niveles…" para que no se mezclen.</p></details>` : ''}
+    <div class="row" style="margin-top:8px"><input type="text" id="quickTask" placeholder="Nueva tarea rápida (sin competencias aún)" style="flex:1"><button class="btn sm" data-a="quickTask">+ Añadir</button></div>
+    <div class="row" style="margin-top:14px;justify-content:space-between">
+      <button class="btn" data-a="openSess">Evaluar esta sesión ›</button>
+      <span class="row"><button class="btn" data-a="closeModal">Cancelar</button><button class="btn pri" data-a="savePlan">Guardar</button></span></div>`);
+}
+// Siguiente sesión del horario del mismo grupo y materia después de una fecha
+function nextSession(date, gid, subj){
+  const d = parseYmd(date);
+  for (let i = 1; i <= 28; i++){
+    const x = new Date(d); x.setDate(x.getDate()+i);
+    const s = state.schedule.filter(s => s.day === x.getDay() && s.groupId === gid && s.subjectId === subj).sort((a,b)=>a.start.localeCompare(b.start))[0];
+    if (s) return {date: ymd(x), start: s.start};
+  }
+  return null;
+}
+function carryModal(){
+  const ctx = currentContext(), p = planFor(ctx.date, ctx.gid, ctx.subj, ctx.start), ts = planTasks(p);
+  const nx = nextSession(ctx.date, ctx.gid, ctx.subj), nStud = studentsOf(ctx.gid).length;
+  if (!nx) { alert('No encuentro otra sesión de este grupo y materia en el horario de las próximas cuatro semanas.'); return; }
+  const nd = parseYmd(nx.date);
+  showModal(`<h3>Pasar tareas pendientes</h3>
+    <p class="ink2">Se añadirán a la siguiente sesión: <b>${DAYS_L[nd.getDay()]} ${nd.toLocaleDateString('es-ES')} a las ${nx.start}</b>.</p>
+    <div class="tree">` + ts.map(t => { const n = sessionEvals(ctx.date, ctx.gid, t.id).length;
+      return `<label><input type="checkbox" class="cTask" value="${t.id}" ${n < nStud ? 'checked' : ''}><span><b>${esc(t.name)}</b> <span class="muted small">(${n}/${nStud} evaluados)</span></span></label>`; }).join('') + `</div>
+    <p class="muted small">Vienen marcadas las que no tienen a todo el grupo evaluado. Lo ya evaluado se conserva.</p>
+    <div class="row" style="margin-top:14px;justify-content:flex-end"><button class="btn" data-a="closeModal">Cancelar</button><button class="btn pri" data-a="doCarry" data-date="${nx.date}" data-start="${nx.start}">Pasar</button></div>`);
+}
+
+// ===================================================================
+//   VISTA HISTORIAL
+// ===================================================================
+function viewHistorial(){
+  const f = ui.hist;
+  if (!f.gid && state.groups[0]) f.gid = currentContext().gid || state.groups[0].id;
+  let list = records.filter(r => ymd(new Date(r.ts)) === f.date);
+  if (f.gid) list = list.filter(r => r.gid === f.gid);
+  if (f.sid) list = list.filter(r => r.sid === f.sid);
+  if (f.subj) list = list.filter(r => r.subj === f.subj);
+  list = list.slice().sort((a,b) => b.ts - a.ts);
+  let h = `<div class="wrap"><h2>Historial</h2><div class="filters">
+    <label class="f">Día<div class="row"><button class="btn sm" data-a="histDay" data-v="-1">‹</button>
+      <input type="date" data-c="histDate" value="${f.date}"><button class="btn sm" data-a="histDay" data-v="1">›</button></div></label>
+    <label class="f">Grupo<select data-c="histG">${selectOptions(state.groups, f.gid, '<option value="">Todos</option>')}</select></label>
+    <label class="f">Alumno<select data-c="histS">${selectOptions(f.gid?studentsOf(f.gid):state.students, f.sid, '<option value="">Todos</option>')}</select></label>
+    <label class="f">Materia<select data-c="histM">${selectOptions(state.subjects, f.subj, '<option value="">Todas</option>')}</select></label>
+  </div>`;
+  if (!list.length) h += `<div class="card empty">No hay registros para este día con estos filtros.</div>`;
+  else h += `<div class="card list">` + list.map(r => {
+    const s = byId(state.students, r.sid), m = byId(state.subjects, r.subj);
+    return `<div class="it" data-a="editRec" data-id="${r.id}" style="cursor:pointer">
+      <span class="muted small" style="width:44px">${hm(new Date(r.ts))}</span>${chipFor(r)}
+      <span style="flex:1"><b>${esc(s?s.name:'(alumno borrado)')}</b> · ${esc(r.name)} <span class="muted small">· ${esc(r.cat)}</span>
+      ${r.note?`<br><span class="ink2 small">${esc(r.note)}</span>`:''}</span>
+      <span class="swatch" style="background:${m?m.color:'#999'};width:10px;height:10px" title="${esc(m?m.name:'')}"></span>
+      <span class="small muted">${esc(m?m.name:'')}</span></div>`;
+  }).join('') + `</div>`;
+  h += `<p class="muted small">${list.length} registro${list.length===1?'':'s'}. Toca uno para editarlo o borrarlo.</p></div>`;
+  return h;
+}
+
+function editRecModal(id){
+  const r = byId(records, id); if (!r) return;
+  const s = byId(state.students, r.sid);
+  showModal(`<h3>${esc(r.name)}</h3>
+    <p class="muted small">${esc(s?s.name:'')} · ${fmtDate(r.ts)} ${hm(new Date(r.ts))} · ${esc(r.cat)}</p>
+    ${r.task ? `<label class="f">Nivel<select id="erLv"><option value="NR" ${r.val==null?'selected':''}>No realizada</option>${[1,2,3,4].map(v=>`<option value="${v}" ${r.val===v?'selected':''}>${v} · ${LEVELS[v]}</option>`).join('')}</select></label>`
+      : r.mode==='score' ? `<label class="f">Valor (de ${r.min} a ${r.max})<input type="number" id="erVal" step="any" value="${r.val}"></label>` : ''}
+    <label class="f" style="margin-top:10px">Nota<textarea id="erNote">${esc(r.note||'')}</textarea></label>
+    <div class="row" style="margin-top:14px;justify-content:space-between">
+      <button class="btn danger" data-a="delRec" data-id="${r.id}">Borrar</button>
+      <span class="row"><button class="btn" data-a="closeModal">Cancelar</button><button class="btn pri" data-a="saveRec" data-id="${r.id}">Guardar</button></span>
+    </div>`);
+}
+
+// ===================================================================
+//   VISTA INFORMES
+// ===================================================================
+function periodRange(p){
+  const now = new Date(); let from, to = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1);
+  if (p === 'semana') from = monday(now);
+  else if (p === '4sem') { from = monday(now); from.setDate(from.getDate()-21); }
+  else if (p === 'trim') {
+    const m = now.getMonth(), y = now.getFullYear();
+    from = m >= 8 ? new Date(y,8,1) : m <= 2 ? new Date(y,0,1) : new Date(y,3,1);
+  }
+  else if (p === 'curso') { const y = now.getMonth() >= 8 ? now.getFullYear() : now.getFullYear()-1; from = new Date(y,8,1); }
+  else if (p === 'custom') {
+    from = ui.rep.from ? parseYmd(ui.rep.from) : monday(now);
+    to = ui.rep.to ? parseYmd(ui.rep.to) : new Date(now); to.setDate(to.getDate()+1);
+  }
+  else { from = records.length ? new Date(records[0].ts) : monday(now); from = new Date(from.getFullYear(), from.getMonth(), from.getDate()); }
+  return {from, to};
+}
+function weeksBetween(from, to){
+  const out = []; let d = monday(from);
+  while (d < to && out.length < 60) { out.push(new Date(d)); d = new Date(d); d.setDate(d.getDate()+7); }
+  return out;
+}
+
+function viewInformes(){
+  const f = ui.rep;
+  if (!state.groups.length) return `<div class="wrap"><div class="card empty">Aún no hay grupos ni datos.</div></div>`;
+  if (!f.gid || !byId(state.groups, f.gid)) f.gid = currentContext().gid || state.groups[0].id;
+  const {from, to} = periodRange(f.period);
+  let recs = records.filter(r => r.gid === f.gid && r.ts >= +from && r.ts < +to);
+  if (f.subj) recs = recs.filter(r => r.subj === f.subj);
+  const pers = [['semana','Esta semana'],['4sem','Últimas 4 semanas'],['trim','Este trimestre'],['curso','Este curso'],['todo','Todo'],['custom','Personalizado']];
+  const grp = byId(state.groups, f.gid);
+  const stuOpts = state.students.filter(s => s.groupId === f.gid);
+  let h = `<div class="wrap"><div class="filters noprint">
+    <label class="f">Grupo<select data-c="repG">${selectOptions(state.groups, f.gid)}</select></label>
+    <label class="f">Alumno<select data-c="repS">${selectOptions(stuOpts, f.sid, '<option value="">Toda la clase</option>')}</select></label>
+    <label class="f">Materia<select data-c="repM">${selectOptions(state.subjects, f.subj, '<option value="">Todas</option>')}</select></label>
+    <label class="f">Periodo<select data-c="repP">${pers.map(([k,l])=>`<option value="${k}" ${f.period===k?'selected':''}>${l}</option>`).join('')}</select></label>
+    ${f.period==='custom'?`<label class="f">Desde<input type="date" data-c="repFrom" value="${f.from||ymd(from)}"></label>
+      <label class="f">Hasta<input type="date" data-c="repTo" value="${f.to||ymd(new Date(+to-864e5))}"></label>`:''}
+    <button class="btn" data-a="print">Imprimir / PDF</button>
+  </div>`;
+  const subjName = f.subj ? (byId(state.subjects,f.subj)||{}).name : 'Todas las materias';
+  const range = `${from.toLocaleDateString('es-ES')} – ${new Date(+to-864e5).toLocaleDateString('es-ES')}`;
+  if (f.sid && byId(state.students, f.sid)) h += studentReport(byId(state.students, f.sid), recs.filter(r=>r.sid===f.sid), from, to, grp, subjName, range);
+  else h += classReport(grp, recs, from, to, subjName, range);
+  return h + `</div>`;
+}
+
+function stats(recs){
+  const pos = recs.filter(r => r.mode!=='score' && r.v>0).length;
+  const neg = recs.filter(r => r.mode!=='score' && r.v<0).length;
+  const scA = dedupeTasks(recs).filter(r => r.area==='A').map(norm).filter(x=>x!=null);
+  const scC = recs.filter(r => r.area==='C').map(norm).filter(x=>x!=null);
+  return {n:recs.length, pos, neg, pct: (pos+neg) ? pos/(pos+neg)*100 : null, avgA: mean(scA), nA: scA.length, avgC: mean(scC)};
+}
+function kpi(l, v, s=''){ return `<div class="kpi"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`; }
+
+function classReport(grp, recs, from, to, subjName, range){
+  const studs = studentsOf(grp.id);
+  const st = stats(recs);
+  const per = studs.map(s => { const rs = recs.filter(r=>r.sid===s.id); return {s, ...stats(rs), last: rs.length ? rs[rs.length-1].ts : null}; });
+  const counts = per.map(p=>p.n).sort((a,b)=>a-b);
+  const median = counts.length ? counts[Math.floor(counts.length/2)] : 0;
+  const few = per.filter(p => p.n <= Math.max(0, Math.floor(median*0.35)));
+  let h = `<div class="print-only"><h2>Informe de grupo · ${esc(grp.name)}</h2></div>
+    <h2 class="noprint">${esc(grp.name)} <span class="muted small">· ${esc(subjName)} · ${range}</span></h2>
+    <p class="print-only muted">${esc(subjName)} · ${range}</p>`;
+  if (!recs.length) return h + `<div class="card empty">No hay registros en este periodo.</div>`;
+  h += `<div class="kpis">
+    ${kpi('Registros', st.n, `${per.filter(p=>p.n).length} de ${studs.length} alumnos con registros`)}
+    ${kpi('Positivos', st.pos, st.pct!=null?`${fmtNum(st.pct,0)} % de las conductas anotadas`:'')}
+    ${kpi('Negativos', st.neg, '')}
+    ${kpi('Media académica', st.avgA!=null?fmtNum(st.avgA):'–', st.nA?`sobre 10 · ${st.nA} puntuaciones`:'sin puntuaciones')}
+  </div>`;
+  if (few.length && studs.length > 3) h += `<div class="banner">👁 <span><b>Atención equitativa:</b> tienes muy pocos registros de ${few.map(p=>esc(splitName(p.s.name).first)).join(', ')}.
+    Conviene observarlos también: el alumnado "invisible" suele quedarse sin evaluar.</span></div>`;
+  const weeks = weeksBetween(from, to);
+  h += `<div class="charts"><div class="card chart"><h4>Balance de conducta por semana</h4><div class="sub">Anotaciones positivas (arriba) y negativas (abajo) de todo el grupo</div>
+    ${divergingWeeks(weeks, recs)}</div>
+    <div class="card chart"><h4>Qué se anota más</h4><div class="sub">Indicadores más frecuentes del grupo</div>${topIndicators(recs, 8)}</div></div>`;
+  const maxPN = Math.max(1, ...per.map(p=>Math.max(p.pos,p.neg)));
+  h += `<div class="card"><h4 style="margin:0 0 8px">Alumnado <span class="muted small noprint">· toca un nombre para ver su informe</span></h4><div style="overflow:auto"><table class="tbl">
+    <thead><tr><th>Alumno</th><th class="num">Registros</th><th class="num">+</th><th class="num">−</th><th>Balance</th><th class="num">Media acad.</th><th>Último registro</th></tr></thead><tbody>` +
+    per.sort((a,b)=>a.s.name.localeCompare(b.s.name,'es')).map(p => `<tr class="click" data-a="repStu" data-id="${p.s.id}">
+      <td><b>${esc(p.s.name)}</b></td><td class="num">${p.n}</td><td class="num">${p.pos}</td><td class="num">${p.neg}</td>
+      <td>${miniBalance(p.pos, p.neg, maxPN)}</td><td class="num">${p.avgA!=null?fmtNum(p.avgA):'–'}</td>
+      <td class="muted small">${p.last?fmtDate(p.last):'—'}</td></tr>`).join('') + `</tbody></table></div></div>`;
+  h += compMatrix(studs, recs, f_subj());
+  h += evoSection(recs.filter(r => r.task), 'class');
+  return h;
+}
+
+function studentReport(s, recs, from, to, grp, subjName, range){
+  const st = stats(recs);
+  let h = `<div class="print-only"><h2>Informe individual · ${esc(s.name)}</h2><p class="muted">${esc(grp.name)} · ${esc(subjName)} · ${range}</p></div>
+    <div class="row noprint" style="margin-bottom:10px"><button class="btn sm" data-a="repBack">‹ Toda la clase</button>
+    <h2 style="margin:0">${esc(s.name)} <span class="muted small">· ${esc(subjName)} · ${range}</span></h2></div>`;
+  if (!recs.length) return h + `<div class="card empty">No hay registros de ${esc(splitName(s.name).first)} en este periodo.</div>`;
+  h += `<div class="kpis">
+    ${kpi('Registros', st.n)}
+    ${kpi('Positivos', st.pos, st.pct!=null?`${fmtNum(st.pct,0)} % de sus conductas anotadas`:'')}
+    ${kpi('Negativos', st.neg)}
+    ${kpi('Media académica', st.avgA!=null?fmtNum(st.avgA):'–', st.nA?`sobre 10 · ${st.nA} puntuaciones`:'sin puntuaciones')}
+  </div>`;
+  h += `<div class="card" style="margin-bottom:14px"><h4 style="margin:0 0 6px">Resumen automático</h4><ul class="summary" style="margin:0;padding-left:20px">${summaryText(s, recs, from, to)}</ul></div>`;
+  const weeks = weeksBetween(from, to);
+  h += `<div class="charts">
+    <div class="card chart"><h4>Evolución de la conducta</h4><div class="sub">Anotaciones positivas (arriba) y negativas (abajo) por semana</div>${divergingWeeks(weeks, recs)}</div>
+    <div class="card chart"><h4>Evolución académica</h4><div class="sub">Media semanal de las puntuaciones académicas, sobre 10</div>${lineWeeks(weeks, recs.filter(r=>r.area==='A'))}</div>
+    <div class="card chart"><h4>Media académica por materia</h4><div class="sub">Sobre 10 · entre paréntesis, número de puntuaciones</div>${subjectBars(recs)}</div>
+    <div class="card chart"><h4>Indicadores más frecuentes</h4><div class="sub">Número de veces anotado</div>${topIndicators(recs, 8)}</div>
+    <div class="card chart"><h4>¿Cuándo aparecen las conductas negativas?</h4><div class="sub">Por día y hora. Ayuda a detectar antecedentes (momento, materia, cansancio)</div>${heatNeg(recs)}</div>
+    <div class="card chart"><h4>Por tipo de actividad</h4><div class="sub">Positivas y negativas por categoría</div>${catBars(recs)}</div>
+  </div>`;
+  h += compSection(recs, f_subj());
+  h += evoSection(recs.filter(r => r.task), 'student');
+  const withNotes = recs.filter(r => r.note).slice().reverse();
+  h += `<div class="card notes"><h4 style="margin:0 0 6px">Observaciones escritas (${withNotes.length})</h4>` +
+    (withNotes.length ? withNotes.map(r => `<div class="it"><span class="muted small">${fmtDate(r.ts)} ${hm(new Date(r.ts))} · ${esc((byId(state.subjects,r.subj)||{}).name||'')}</span><br>
+      ${chipFor(r)} <b>${esc(r.name)}</b> — ${esc(r.note)}</div>`).join('') : `<p class="muted">No hay observaciones con texto en el periodo.</p>`) + `</div>`;
+  return h;
+}
+
+const f_subj = () => ui.rep.subj || '';
+const lvCell = avg => { if (avg == null) return `<td class="lvc muted">–</td>`; const k = Math.min(4, Math.max(1, Math.round(avg)));
+  return `<td class="lvc" style="background:var(--l${k});color:var(--l${k}i)" data-tip="${fmtNum(avg,2)} · ${LEVELS[k]}">${fmtNum(avg)}</td>`; };
+function levelBar(avg){
+  if (avg == null) return '<span class="muted">–</span>';
+  const k = Math.min(4, Math.max(1, Math.round(avg))), w = 140;
+  return `<svg viewBox="0 0 ${w} 14" width="${w}" height="14" style="vertical-align:middle"><rect x="0" y="3" width="${w}" height="8" rx="4" fill="var(--surface2)"/>
+    <rect x="0" y="3" width="${Math.max(8, avg/4*w)}" height="8" rx="4" fill="var(--l${k === 1 ? 2 : k})"/></svg>`;
+}
+function areaAvg(levels, subj){
+  const vals = compsOf(subj).map(c => levels.comp[c.id]).filter(Boolean).map(x => x.avg);
+  return mean(vals);
+}
+// Informe individual: nivel por competencia y criterio
+function compSection(recs, subj){
+  const tr = recs.filter(r => r.task);
+  if (!tr.length) return '';
+  const subjIds = subj ? [subj] : [...new Set(tr.map(r => r.subj))];
+  let h = '';
+  subjIds.forEach(sid => {
+    const rs = tr.filter(r => r.subj === sid); if (!rs.length) return;
+    const m = byId(state.subjects, sid) || {name:'?'}, L = compLevels(rs), comps = compsOf(sid);
+    const av = areaAvg(L, sid), g = gradeFor(av);
+    h += `<div class="card" style="margin-bottom:14px"><div class="row" style="justify-content:space-between">
+        <h4 style="margin:0">Competencias específicas · ${esc(m.name)}</h4>
+        <span>Media del área: <b>${av!=null?fmtNum(av,2):'–'}</b> ${g?`· sugerida <span class="grade" title="${GRADE_L[g]}">${g}</span>`:''}</span></div>
+      <p class="muted small" style="margin:4px 0 8px">Nivel medio de 1 a 4 con la última evaluación de cada tarea. La calificación es orientativa.</p>
+      <div style="overflow:auto"><table class="tbl"><thead><tr><th>Competencia / criterio</th><th>Nivel</th><th class="num">Media</th><th class="num">Evid.</th></tr></thead><tbody>` +
+      comps.map(c => { const x = L.comp[c.id];
+        return `<tr><td><b>${esc(c.code)}</b> <span class="small">${esc(c.text.length>110?c.text.slice(0,108)+'…':c.text)}</span></td><td>${levelBar(x&&x.avg)}</td>
+          <td class="num"><b>${x?fmtNum(x.avg):'–'}</b></td><td class="num muted">${x?x.n:0}</td></tr>` +
+          critsOf(c.id).filter(k => L.crit[k.id]).map(k => { const y = L.crit[k.id];
+            return `<tr><td style="padding-left:24px" class="small"><span class="cc">${esc(k.code)}</span> ${esc(k.text.length>100?k.text.slice(0,98)+'…':k.text)}</td><td>${levelBar(y.avg)}</td>
+              <td class="num">${fmtNum(y.avg)}</td><td class="num muted">${y.n}</td></tr>`; }).join(''); }).join('') + `</tbody></table></div>`;
+    const last = latestTaskEvals(rs).sort((a,b)=>b.ts-a.ts);
+    h += `<details style="margin-top:8px"><summary class="small ink2" style="cursor:pointer">Tareas evaluadas (${last.length})</summary><div class="list">` +
+      last.map(r => `<div class="it small">${chipFor(r)}<span style="flex:1"><b>${esc(r.name)}</b> · ${lvlName(r.val)}${r.note?` <span class="muted">— ${esc(r.note)}</span>`:''}</span><span class="muted">${fmtDate(r.ts)}</span></div>`).join('') +
+      `</div></details></div>`;
+  });
+  return h;
+}
+// Informe de grupo: matriz alumnado × competencias
+function compMatrix(studs, recs, subj){
+  const tr = recs.filter(r => r.task);
+  if (!tr.length) return '';
+  if (!subj) return `<div class="card" style="margin-top:14px"><p class="muted" style="margin:0">Elige una materia en el filtro para ver la matriz de competencias específicas del grupo.</p></div>`;
+  const comps = compsOf(subj); if (!comps.length) return '';
+  let h = `<div class="card" style="margin-top:14px"><h4 style="margin:0 0 2px">Competencias específicas del grupo</h4>
+    <p class="muted small" style="margin:0 0 8px">Nivel medio de 1 a 4 · la calificación es orientativa</p><div style="overflow:auto"><table class="tbl matrix"><thead><tr><th>Alumno</th>` +
+    comps.map(c => `<th title="${esc(c.text)}" style="text-align:center">${esc(c.code)}</th>`).join('') + `<th class="num">Área</th><th>Sugerida</th></tr></thead><tbody>`;
+  const colVals = comps.map(() => []);
+  studs.slice().sort((a,b)=>a.name.localeCompare(b.name,'es')).forEach(s => {
+    const L = compLevels(tr.filter(r => r.sid === s.id)), av = areaAvg(L, subj), g = gradeFor(av);
+    h += `<tr class="click" data-a="repStu" data-id="${s.id}"><td><b>${esc(s.name)}</b></td>` +
+      comps.map((c,i) => { const x = L.comp[c.id]; if (x) colVals[i].push(x.avg); return lvCell(x && x.avg); }).join('') +
+      `<td class="num"><b>${av!=null?fmtNum(av,2):'–'}</b></td><td>${g?`<span class="grade" title="${GRADE_L[g]}">${g}</span>`:''}</td></tr>`;
+  });
+  h += `<tr><td class="muted">Media del grupo</td>` + colVals.map(v => lvCell(mean(v))).join('') + `<td></td><td></td></tr></tbody></table></div>
+    <div class="legend">${[1,2,3,4].map(k=>`<span><i style="background:var(--l${k})"></i>${k} ${LEVELS[k]}</span>`).join('')}</div></div>`;
+  return h;
+}
+
+// Evolución de una tarea o de un criterio a lo largo de las sesiones
+function evoSection(tr, mode){
+  if (!tr.length) return '';
+  const tasks = new Map(), crits = new Map();
+  tr.forEach(r => { tasks.set(r.task, (tasks.get(r.task)||0) + 1); (r.crit||[]).forEach(id => crits.set(id, (crits.get(id)||0) + 1)); });
+  const opts = [...[...tasks.entries()].map(([id,n]) => ({k:'t:'+id, lbl:(byId(state.tareas,id)||{name:(tr.find(r=>r.task===id)||{}).name||'?'}).name, n, g:'Tareas'})),
+                ...[...crits.entries()].map(([id,n]) => { const k = byId(state.criterios,id); return k ? {k:'k:'+id, lbl:`${k.code} ${k.text}`, n, g:'Criterios de evaluación'} : null; }).filter(Boolean)];
+  if (!opts.length) return '';
+  if (!opts.some(o => o.k === ui.rep.evo)) ui.rep.evo = opts.sort((a,b)=>b.n-a.n)[0].k;
+  const [kind, id] = ui.rep.evo.split(':');
+  const rs = tr.filter(r => kind === 't' ? r.task === id : (r.crit||[]).includes(id));
+  const byDate = {};
+  rs.forEach(r => { const d = recDate(r); (byDate[d] || (byDate[d] = [])).push(r); });
+  const pts = Object.keys(byDate).sort().map(d => { const a = byDate[d], vals = a.filter(r=>r.val!=null).map(r=>r.val);
+    return {d, v: mean(vals), n: vals.length, nr: a.length - vals.length}; });
+  const grp = g => opts.filter(o=>o.g===g).map(o => `<option value="${o.k}" ${o.k===ui.rep.evo?'selected':''}>${esc(o.lbl.length>70?o.lbl.slice(0,68)+'…':o.lbl)} (${o.n})</option>`).join('');
+  const withV = pts.filter(p => p.v != null);
+  let trend = '';
+  if (withV.length >= 2){ const a = withV[0].v, b = withV[withV.length-1].v, d = b - a;
+    trend = Math.abs(d) < 0.25 ? `Estable (${fmtNum(a)} → ${fmtNum(b)}).` : d > 0 ? `<b>Mejora</b>: de ${fmtNum(a)} a ${fmtNum(b)}.` : `<b>Baja</b>: de ${fmtNum(a)} a ${fmtNum(b)}.`; }
+  return `<div class="card chart" style="margin-bottom:14px"><div class="row" style="justify-content:space-between;align-items:flex-start">
+      <div><h4>Evolución ${mode==='class'?'del grupo ':''}por tarea o criterio</h4>
+      <div class="sub">${mode==='class'?'Nivel medio del grupo en cada sesión':'Nivel en cada sesión en que se evaluó'} (1 No conseguido · 4 Destacado)${trend?' · '+trend:''}</div></div>
+      <select data-c="evoSel" class="noprint" style="max-width:420px"><optgroup label="Tareas">${grp('Tareas')}</optgroup><optgroup label="Criterios de evaluación">${grp('Criterios de evaluación')}</optgroup></select></div>
+    ${levelLine(pts, mode)}</div>`;
+}
+function levelLine(pts, mode){
+  const W = 620, H = 210, L = 30, R = 16, T = 14, B = 30, iw = W-L-R, ih = H-T-B;
+  const X = i => pts.length === 1 ? L + iw/2 : L + i * iw/(pts.length-1), Y = v => T + ih - (v-1)/3*ih;
+  const every = Math.ceil(pts.length/10);
+  let g = '';
+  [1,2,3,4].forEach(v => g += `<line class="axis" x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L-8}" y="${Y(v)+4}" text-anchor="end">${v}</text>`);
+  let path = '', on = false;
+  pts.forEach((p,i) => { if (p.v == null) { on = false; return; } path += `${on?'L':'M'}${X(i)},${Y(p.v)} `; on = true; });
+  g += `<path d="${path}" fill="none" stroke="var(--pos)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  pts.forEach((p,i) => { const dd = parseYmd(p.d), lbl = `${dd.getDate()}/${dd.getMonth()+1}`;
+    const tip = `${DAYS_L[dd.getDay()]} ${lbl}: ${p.v!=null?fmtNum(p.v,mode==='class'?1:0)+(mode==='class'?` (media de ${p.n})`:' · '+LEVELS[Math.round(p.v)]):'sin nivel'}${p.nr?` · ${p.nr} no realizada${p.nr>1?'s':''}`:''}`;
+    if (p.v != null) g += `<circle cx="${X(i)}" cy="${Y(p.v)}" r="5" fill="var(--pos)" stroke="var(--surface)" stroke-width="2"/>`;
+    else g += `<text x="${X(i)}" y="${Y(1)+4}" text-anchor="middle" style="fill:var(--muted);font-weight:700">NR</text>`;
+    g += `<circle cx="${X(i)}" cy="${p.v!=null?Y(p.v):Y(1)}" r="16" fill="transparent" data-tip="${esc(tip)}"/>`;
+    if (i % every === 0) g += `<text x="${X(i)}" y="${H-10}" text-anchor="middle">${lbl}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Evolución">${g}</svg>`;
+}
+
+function summaryText(s, recs, from, to){
+  const st = stats(recs), items = [];
+  const first = splitName(s.name).first;
+  if (st.pos + st.neg) items.push(`${st.pos} anotaci${st.pos===1?'ón positiva':'ones positivas'} y ${st.neg} negativa${st.neg===1?'':'s'} (${fmtNum(st.pct,0)} % positivas).`);
+  const negs = recs.filter(r => r.mode!=='score' && r.v<0);
+  if (negs.length){
+    const byInd = countBy(negs, r=>r.name); const top = Object.entries(byInd).sort((a,b)=>b[1]-a[1])[0];
+    items.push(`Conducta negativa más frecuente: <b>${esc(top[0])}</b> (${top[1]} ${top[1]===1?'vez':'veces'}).`);
+    const bySlot = countBy(negs, r=>{ const d=new Date(r.ts); return `${DAYS_L[d.getDay()]} de ${d.getHours()}:00 a ${d.getHours()+1}:00`; });
+    const ts = Object.entries(bySlot).sort((a,b)=>b[1]-a[1])[0];
+    if (ts[1] >= 2) items.push(`Se concentra sobre todo los <b>${ts[0]}</b> (${ts[1]} registros).`);
+    const bySubj = countBy(negs, r=>(byId(state.subjects,r.subj)||{}).name||'?'); const tsub = Object.entries(bySubj).sort((a,b)=>b[1]-a[1])[0];
+    if (Object.keys(bySubj).length > 1 && tsub[1] >= 2) items.push(`Materia con más incidencias: <b>${esc(tsub[0])}</b> (${tsub[1]}).`);
+  }
+  const poss = recs.filter(r => r.mode!=='score' && r.v>0);
+  if (poss.length){ const top = Object.entries(countBy(poss, r=>r.name)).sort((a,b)=>b[1]-a[1])[0];
+    items.push(`Fortaleza más anotada: <b>${esc(top[0])}</b> (${top[1]}).`); }
+  // Tendencia: primera mitad vs segunda mitad del periodo
+  const mid = (+from + +to)/2;
+  const a = stats(recs.filter(r=>r.ts<mid)), b = stats(recs.filter(r=>r.ts>=mid));
+  if (a.pos+a.neg >= 3 && b.pos+b.neg >= 3){
+    const d = b.pct - a.pct;
+    items.push(Math.abs(d) < 10 ? `La conducta se mantiene estable a lo largo del periodo (${fmtNum(a.pct,0)} % → ${fmtNum(b.pct,0)} % positivas).`
+      : d > 0 ? `La conducta <b>mejora</b>: pasa del ${fmtNum(a.pct,0)} % al ${fmtNum(b.pct,0)} % de anotaciones positivas.`
+              : `La conducta <b>empeora</b>: pasa del ${fmtNum(a.pct,0)} % al ${fmtNum(b.pct,0)} % de anotaciones positivas.`);
+  }
+  if (st.avgA != null){
+    let t = `Media académica de ${fmtNum(st.avgA)} sobre 10 (${st.nA} puntuaciones)`;
+    if (a.avgA != null && b.avgA != null && a.nA >= 2 && b.nA >= 2){
+      const d = b.avgA - a.avgA;
+      t += Math.abs(d) < 0.5 ? ', estable.' : d > 0 ? `, con tendencia al alza (${fmtNum(a.avgA)} → ${fmtNum(b.avgA)}).` : `, con tendencia a la baja (${fmtNum(a.avgA)} → ${fmtNum(b.avgA)}).`;
+    } else t += '.';
+    items.push(t);
+  }
+  const tr = recs.filter(r => r.task);
+  if (tr.length){
+    const L = compLevels(tr), arr = Object.entries(L.comp).map(([id,x]) => ({c:byId(state.competencias,id), ...x})).filter(x=>x.c).sort((a,b)=>b.avg-a.avg);
+    if (arr.length >= 2) items.push(`Competencia más consolidada: <b>${esc(arr[0].c.code)}</b> (${fmtNum(arr[0].avg)}); a reforzar: <b>${esc(arr[arr.length-1].c.code)}</b> (${fmtNum(arr[arr.length-1].avg)}), en escala 1–4.`);
+    else if (arr.length === 1) items.push(`Nivel en <b>${esc(arr[0].c.code)}</b>: ${fmtNum(arr[0].avg)} en escala 1–4.`);
+    const nr = latestTaskEvals(tr).filter(r => r.val == null).length;
+    if (nr) items.push(`${nr} tarea${nr>1?'s':''} no realizada${nr>1?'s':''}.`);
+  }
+  if (!items.length) items.push(`Hay ${recs.length} registros de ${esc(first)}, pero ninguno cuantificable.`);
+  return items.map(x=>`<li>${x}</li>`).join('');
+}
+const countBy = (arr, fn) => arr.reduce((o,x)=>{ const k=fn(x); o[k]=(o[k]||0)+1; return o; },{});
+
+// ---------- Gráficos SVG (sin librerías, funcionan sin conexión) ----------
+function divergingWeeks(weeks, recs){
+  const data = weeks.map(w => { const end = +w + 7*864e5;
+    const rs = recs.filter(r => r.ts >= +w && r.ts < end && r.mode !== 'score');
+    return {w, pos: rs.filter(r=>r.v>0).length, neg: rs.filter(r=>r.v<0).length}; });
+  if (!data.some(d=>d.pos||d.neg)) return `<p class="muted">Sin anotaciones positivas ni negativas en el periodo.</p>`;
+  const W = 520, H = 220, L = 30, R = 8, T = 10, B = 26, iw = W-L-R, ih = H-T-B;
+  const m = Math.max(1, ...data.map(d=>Math.max(d.pos,d.neg)));
+  const y0 = T + ih/2, sc = (ih/2 - 4) / m;
+  const bw = Math.min(34, iw/data.length*0.62), step = iw/data.length;
+  const every = Math.ceil(data.length/10);
+  let g = `<line class="axis" x1="${L}" x2="${W-R}" y1="${T}" y2="${T}"/><line class="axis" x1="${L}" x2="${W-R}" y1="${T+ih}" y2="${T+ih}"/>`;
+  g += `<text x="${L-6}" y="${T+4}" text-anchor="end">${m}</text><text x="${L-6}" y="${T+ih}" text-anchor="end">${m}</text><text x="${L-6}" y="${y0+4}" text-anchor="end">0</text>`;
+  data.forEach((d,i) => {
+    const x = L + step*i + (step-bw)/2, lbl = `${d.w.getDate()}/${d.w.getMonth()+1}`;
+    const tip = `Semana del ${lbl}: +${d.pos} / −${d.neg}`;
+    if (d.pos) g += `<path d="${roundTop(x, y0-1, bw, d.pos*sc)}" fill="var(--pos)"/>`;
+    if (d.neg) g += `<path d="${roundBottom(x, y0+1, bw, d.neg*sc)}" fill="var(--neg)"/>`;
+    g += `<rect x="${L+step*i}" y="${T}" width="${step}" height="${ih}" fill="transparent" data-tip="${esc(tip)}"/>`;
+    if (i % every === 0) g += `<text x="${x+bw/2}" y="${H-8}" text-anchor="middle">${lbl}</text>`;
+  });
+  g += `<line class="zero" x1="${L}" x2="${W-R}" y1="${y0}" y2="${y0}"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Balance semanal">${g}</svg>
+    <div class="legend"><span><i style="background:var(--pos)"></i>Positivas (+)</span><span><i style="background:var(--neg)"></i>Negativas (−)</span></div>`;
+}
+function roundTop(x, yBase, w, h){ const r = Math.min(4, h, w/2); return `M${x},${yBase} V${yBase-h+r} Q${x},${yBase-h} ${x+r},${yBase-h} H${x+w-r} Q${x+w},${yBase-h} ${x+w},${yBase-h+r} V${yBase} Z`; }
+function roundBottom(x, yBase, w, h){ const r = Math.min(4, h, w/2); return `M${x},${yBase} V${yBase+h-r} Q${x},${yBase+h} ${x+r},${yBase+h} H${x+w-r} Q${x+w},${yBase+h} ${x+w},${yBase+h-r} V${yBase} Z`; }
+function roundRight(x, y, w, h){ const r = Math.min(4, w, h/2); return `M${x},${y} H${x+w-r} Q${x+w},${y} ${x+w},${y+r} V${y+h-r} Q${x+w},${y+h} ${x+w-r},${y+h} H${x} Z`; }
+
+function lineWeeks(weeks, recs){
+  const data = weeks.map(w => { const end = +w + 7*864e5;
+    const sc = recs.filter(r => r.ts >= +w && r.ts < end).map(norm).filter(x=>x!=null);
+    return {w, v: mean(sc), n: sc.length}; });
+  const pts = data.filter(d => d.v != null);
+  if (!pts.length) return `<p class="muted">Sin puntuaciones académicas en el periodo. Usa indicadores de tipo puntuación (p. ej. "Cálculo mental 0–10").</p>`;
+  const W = 520, H = 220, L = 30, R = 12, T = 12, B = 26, iw = W-L-R, ih = H-T-B;
+  const step = iw / Math.max(1, data.length-1 || 1);
+  const X = i => data.length === 1 ? L + iw/2 : L + step*i, Y = v => T + ih - v/10*ih;
+  const every = Math.ceil(data.length/10);
+  let g = '';
+  [0,5,10].forEach(v => g += `<line class="axis" x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end">${v}</text>`);
+  let path = '', started = false;
+  data.forEach((d,i) => { if (d.v == null) { started = false; return; } path += `${started?'L':'M'}${X(i)},${Y(d.v)} `; started = true; });
+  g += `<path d="${path}" fill="none" stroke="var(--pos)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  data.forEach((d,i) => {
+    const lbl = `${d.w.getDate()}/${d.w.getMonth()+1}`;
+    if (d.v != null) g += `<circle cx="${X(i)}" cy="${Y(d.v)}" r="4.5" fill="var(--pos)" stroke="var(--surface)" stroke-width="2"/>
+      <circle cx="${X(i)}" cy="${Y(d.v)}" r="16" fill="transparent" data-tip="Semana del ${lbl}: ${fmtNum(d.v)} (${d.n} puntuaciones)"/>`;
+    if (i % every === 0) g += `<text x="${X(i)}" y="${H-8}" text-anchor="middle">${lbl}</text>`;
+  });
+  const last = pts[pts.length-1], li = data.indexOf(last);
+  g += `<text x="${X(li)}" y="${Y(last.v)-10}" text-anchor="middle" style="fill:var(--ink);font-weight:700">${fmtNum(last.v)}</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Evolución académica">${g}</svg>`;
+}
+
+function hBars(items, max, fmt = v => v){
+  if (!items.length) return '';
+  const W = 520, rowH = 28, L = 170, R = 44, H = items.length*rowH + 4, iw = W-L-R;
+  let g = '';
+  items.forEach((it,i) => {
+    const y = i*rowH + 4, w = Math.max(2, it.value/max*iw);
+    const label = it.label.length > 26 ? it.label.slice(0,25)+'…' : it.label;
+    g += `<text x="${L-8}" y="${y+15}" text-anchor="end" style="fill:var(--ink)">${esc(label)}</text>
+      <path d="${roundRight(L, y+3, w, 16)}" fill="${it.color}"/>
+      <text x="${L+w+6}" y="${y+15}" style="fill:var(--ink);font-weight:600">${fmt(it.value)}${it.extra||''}</text>
+      <rect x="0" y="${y}" width="${W}" height="${rowH}" fill="transparent" data-tip="${esc(it.tip||it.label)}"/>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" role="img">${g}</svg>`;
+}
+function topIndicators(recs, n){
+  const groups = {};
+  recs.filter(r => !r.task).forEach(r => { const k = r.name + '|' + r.mode + '|' + r.v; const g = groups[k] || (groups[k] = {name:r.name, v:r.v, mode:r.mode, c:0}); g.c++; });
+  const top = Object.values(groups).sort((a,b)=>b.c-a.c).slice(0,n);
+  if (!top.length) return `<p class="muted">Sin datos.</p>`;
+  const max = Math.max(...top.map(t=>t.c));
+  return hBars(top.map(t => ({label:(t.mode==='score'?'':t.v>0?'+ ':t.v<0?'− ':'')+t.name, value:t.c,
+      color: t.mode==='score' ? 'var(--neu)' : t.v>0 ? 'var(--pos)' : t.v<0 ? 'var(--neg)' : 'var(--neu)', tip:`${t.name}: ${t.c}`})), max) +
+    `<div class="legend"><span><i style="background:var(--pos)"></i>Positivo</span><span><i style="background:var(--neg)"></i>Negativo</span><span><i style="background:var(--neu)"></i>Puntuación / neutro</span></div>`;
+}
+function subjectBars(recs){
+  const by = {};
+  dedupeTasks(recs).filter(r=>r.area==='A').forEach(r => { const v = norm(r); if (v==null) return; (by[r.subj] || (by[r.subj]=[])).push(v); });
+  const items = Object.entries(by).map(([id, arr]) => { const s = byId(state.subjects,id)||{name:'?'};
+    return {label:s.name, value:mean(arr), extra:` (${arr.length})`, color:'var(--pos)', tip:`${s.name}: ${fmtNum(mean(arr))} sobre 10 · ${arr.length} puntuaciones`}; })
+    .sort((a,b)=>b.value-a.value);
+  if (!items.length) return `<p class="muted">Sin puntuaciones académicas en el periodo.</p>`;
+  return hBars(items, 10, v => fmtNum(v));
+}
+function catBars(recs){
+  const rows = CATS.map(c => { const rs = recs.filter(r=>r.cat===c.k && r.mode!=='score'); return {k:c.k, p:rs.filter(r=>r.v>0).length, n:rs.filter(r=>r.v<0).length}; }).filter(r=>r.p||r.n);
+  if (!rows.length) return `<p class="muted">Sin anotaciones positivas o negativas.</p>`;
+  const W = 520, rowH = 30, L = 150, H = rows.length*rowH + 4, mid = L + (W-L)/2, half = (W-L)/2 - 30;
+  const m = Math.max(1, ...rows.map(r=>Math.max(r.p,r.n)));
+  let g = `<line class="zero" x1="${mid}" x2="${mid}" y1="0" y2="${H}"/>`;
+  rows.forEach((r,i) => { const y = i*rowH + 5, wp = r.p/m*half, wn = r.n/m*half;
+    g += `<text x="${L-8}" y="${y+15}" text-anchor="end" style="fill:var(--ink)">${esc(r.k)}</text>`;
+    if (r.n) g += `<path d="M${mid-1},${y+3} H${mid-wn+4} Q${mid-wn},${y+3} ${mid-wn},${y+7} V${y+15} Q${mid-wn},${y+19} ${mid-wn+4},${y+19} H${mid-1} Z" fill="var(--neg)"/><text x="${mid-wn-5}" y="${y+15}" text-anchor="end" style="fill:var(--ink);font-weight:600">${r.n}</text>`;
+    if (r.p) g += `<path d="${roundRight(mid+1, y+3, wp, 16)}" fill="var(--pos)"/><text x="${mid+wp+6}" y="${y+15}" style="fill:var(--ink);font-weight:600">${r.p}</text>`;
+    g += `<rect x="0" y="${y-3}" width="${W}" height="${rowH}" fill="transparent" data-tip="${esc(r.k)}: +${r.p} / −${r.n}"/>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" role="img">${g}</svg><div class="legend"><span><i style="background:var(--neg)"></i>Negativas</span><span><i style="background:var(--pos)"></i>Positivas</span></div>`;
+}
+function heatNeg(recs){
+  const negs = recs.filter(r => r.mode!=='score' && r.v<0);
+  if (!negs.length) return `<p class="muted">No hay conductas negativas anotadas en el periodo. 👍</p>`;
+  const hours = negs.map(r=>new Date(r.ts).getHours());
+  const h0 = Math.min(9, ...hours), h1 = Math.max(16, ...hours);
+  const days = [1,2,3,4,5];
+  const M = {}; negs.forEach(r => { const d = new Date(r.ts); const k = d.getDay()+'_'+d.getHours(); M[k] = (M[k]||0)+1; });
+  const max = Math.max(...Object.values(M));
+  const cw = 80, ch = 26, L = 70, T = 22, W = L + days.length*cw, H = T + (h1-h0+1)*ch;
+  let g = days.map((d,i)=>`<text x="${L+i*cw+cw/2}" y="14" text-anchor="middle" style="font-weight:600">${DAYS[d]}</text>`).join('');
+  for (let h=h0; h<=h1; h++){
+    const y = T + (h-h0)*ch;
+    g += `<text x="${L-8}" y="${y+17}" text-anchor="end">${h}:00</text>`;
+    days.forEach((d,i) => { const v = M[d+'_'+h]||0; const a = v ? 0.18 + 0.82*v/max : 0;
+      g += `<rect x="${L+i*cw+1}" y="${y+1}" width="${cw-2}" height="${ch-2}" rx="4" fill="${v?'var(--neg)':'var(--surface2)'}" fill-opacity="${v?a.toFixed(2):1}" data-tip="${DAYS_L[d]} ${h}:00–${h+1}:00: ${v} negativa${v===1?'':'s'}"/>`;
+      if (v) g += `<text x="${L+i*cw+cw/2}" y="${y+17}" text-anchor="middle" style="fill:${a>0.55?'#fff':'var(--ink)'};font-weight:700;pointer-events:none">${v}</text>`;
+    });
+  }
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" style="max-width:${W}px">${g}</svg>`;
+}
+function miniBalance(p, n, max){
+  const W = 120, mid = 60, wp = p/max*(mid-2), wn = n/max*(mid-2);
+  return `<svg viewBox="0 0 ${W} 14" width="${W}" height="14" style="display:block">
+    <rect x="${mid-wn}" y="2" width="${wn}" height="10" rx="2" fill="var(--neg)"/><rect x="${mid}" y="2" width="${wp}" height="10" rx="2" fill="var(--pos)"/>
+    <line x1="${mid}" x2="${mid}" y1="0" y2="14" stroke="var(--muted)"/></svg>`;
+}
+
+// ===================================================================
+//   VISTA AJUSTES
+// ===================================================================
+function viewAjustes(){
+  const tabs = [['grupos','Grupos y alumnado'],['materias','Materias'],['curriculo','Currículo'],['tareas','Tareas'],['indicadores','Anotaciones estándar'],['horario','Horario'],['datos','Datos y copias']];
+  let h = `<div class="wrap"><h2>Ajustes</h2><div class="subtabs">` +
+    tabs.map(([k,l])=>`<button data-a="cfgTab" data-v="${k}" class="${ui.cfg.tab===k?'on':''}">${l}</button>`).join('') + `</div>`;
+  h += ({grupos:cfgGrupos, materias:cfgMaterias, curriculo:cfgCurriculo, tareas:cfgTareas, indicadores:cfgIndicadores, horario:cfgHorario, datos:cfgDatos})[ui.cfg.tab]();
+  return h + `</div>`;
+}
+function cfgGrupos(){
+  if (!ui.cfg.gid || !byId(state.groups, ui.cfg.gid)) ui.cfg.gid = (state.groups[0]||{}).id || '';
+  const g = byId(state.groups, ui.cfg.gid);
+  let h = `<div class="card"><div class="row">` +
+    state.groups.map(x=>`<button class="btn sm ${x.id===ui.cfg.gid?'pri':''}" data-a="cfgG" data-id="${x.id}">${esc(x.name)}</button>`).join('') +
+    `<input type="text" id="newGroup" placeholder="Nuevo grupo (p. ej. 1.º A)" style="width:200px"><button class="btn" data-a="addGroup">+ Añadir grupo</button></div></div>`;
+  if (!g) return h;
+  const studs = state.students.filter(s=>s.groupId===g.id);
+  h += `<div class="card" style="margin-top:12px"><div class="row" style="justify-content:space-between">
+      <span class="row"><label class="f">Nombre del grupo<input type="text" data-c="groupName" value="${esc(g.name)}"></label>
+      <label class="f">Nivel${lvSelect('groupLevel', g.level || '', 'Sin nivel')}</label></span>
+      <button class="btn danger sm" data-a="delGroup">Eliminar grupo</button></div>
+    <h3>Alumnado (${studs.filter(s=>s.active!==false).length})</h3>
+    <div class="list">` + studs.map(s => `<div class="it">
+      <input type="text" data-c="stuName" data-id="${s.id}" value="${esc(s.name)}" style="flex:1;${s.active===false?'opacity:.5':''}">
+      <button class="btn sm" data-a="toggleStu" data-id="${s.id}">${s.active===false?'Dar de alta':'Dar de baja'}</button>
+      <button class="btn sm danger" data-a="delStu" data-id="${s.id}" aria-label="Borrar">✕</button></div>`).join('') + `</div>
+    <p class="muted small">"Dar de baja" oculta al alumno en el aula, pero conserva su historial. Borrar elimina también sus registros.</p>
+    <h3>Añadir alumnado</h3>
+    <textarea id="bulkNames" placeholder="Un nombre por línea. Puedes pegar la lista directamente desde ITACA o una hoja de cálculo.&#10;Ejemplo:&#10;Lucía García&#10;Hugo Martínez"></textarea>
+    <div class="row" style="margin-top:8px"><button class="btn pri" data-a="addStudents">Añadir a ${esc(g.name)}</button>
+      <button class="btn" data-a="sortStudents">Ordenar A–Z</button></div></div>`;
+  return h;
+}
+function cfgMaterias(){
+  return `<div class="card list">` + state.subjects.map(s => `<div class="it">
+      <input type="color" data-c="subjColor" data-id="${s.id}" value="${s.color}" style="width:44px;height:40px;border:0;background:none;padding:0">
+      <input type="text" data-c="subjName" data-id="${s.id}" value="${esc(s.name)}" style="flex:1">
+      <button class="btn sm danger" data-a="delSubj" data-id="${s.id}" aria-label="Borrar">✕</button></div>`).join('') +
+    `<div class="it"><input type="text" id="newSubj" placeholder="Nueva materia" style="flex:1"><button class="btn" data-a="addSubj">+ Añadir</button></div></div>`;
+}
+function subjPicker(key, lbl='Materia'){
+  if (!ui.cfg[key] || !byId(state.subjects, ui.cfg[key])) ui.cfg[key] = (state.subjects.find(s=>s.name==='Matemáticas') || state.subjects[0] || {}).id;
+  return `<label class="f">${lbl}<select data-c="cfgSubj" data-k="${key}">${selectOptions(state.subjects, ui.cfg[key])}</select></label>`;
+}
+function cfgCurriculo(){
+  const lv = ui.cfg.curLv || '';
+  let h = `<div class="card"><div class="row" style="justify-content:space-between;align-items:flex-end"><span class="row">${subjPicker('curSubj','Área / materia')}
+      <label class="f">Nivel${lvSelect('curLv', lv)}</label></span>
+    <span class="row"><button class="btn" data-a="bulkComp">Pegar varias competencias</button><button class="btn pri" data-a="newComp">+ Competencia específica</button></span></div>
+    <p class="ink2 small" style="margin-bottom:0">Las competencias específicas son comunes al área; cada criterio de evaluación indica a qué nivel o niveles pertenece.
+      Elige un nivel para ver y crear solo sus criterios. Luego, en "Tareas", asocias cada tarea a las competencias y criterios que evalúa.</p>
+    <div class="row" style="margin-top:10px"><button class="btn sm" data-a="curExport">Exportar currículo…</button><button class="btn sm" data-a="curImport">Importar currículo…</button>
+      <button class="btn sm" data-a="curCentro">Cargar currículo del centro</button></div></div>`;
+  const comps = compsOf(ui.cfg.curSubj);
+  if (!comps.length) return h + `<div class="card empty" style="margin-top:12px">Esta materia aún no tiene competencias específicas.</div>`;
+  const allCr = comps.flatMap(c => critsOf(c.id)), sinNivel = allCr.filter(k => !(k.levels||[]).length).length;
+  h += `<div class="${sinNivel ? 'banner' : 'card'}" style="margin-top:12px">${sinNivel
+      ? `<span><b>${sinNivel} criterio${sinNivel>1?'s':''} sin nivel.</b> Por eso aparece${sinNivel>1?'n':''} en todos los niveles. Asígnales su curso para separarlos.</span>`
+      : `<span class="small ink2">Todos los criterios tienen nivel asignado.</span>`}
+      <button class="btn sm ${sinNivel?'pri':''}" data-a="lvAssign">Asignar niveles…</button></div>`;
+  comps.forEach(c => {
+    const all = critsOf(c.id), crs = all.filter(k => lvMatch(k.levels, lv));
+    h += `<div class="card" style="margin-top:12px"><div class="row" style="align-items:flex-start">
+        <span class="cc" style="font-size:14px">${esc(c.code)}</span><span style="flex:1">${esc(c.text)}</span>
+        <button class="btn sm" data-a="editComp" data-id="${c.id}">Editar</button><button class="btn sm danger" data-a="delComp" data-id="${c.id}" aria-label="Borrar">✕</button></div>
+      <div class="list" style="margin:8px 0 0 12px">` + crs.map(cr => `<div class="it"><span class="cc">${esc(cr.code)}</span><span style="flex:1" class="small">${esc(cr.text)} ${(cr.levels||[]).length ? lvChips(cr.levels) : '<span class="cc">Sin nivel</span>'}</span>
+        <button class="btn sm" data-a="editCrit" data-id="${cr.id}">Editar</button><button class="btn sm danger" data-a="delCrit" data-id="${cr.id}" aria-label="Borrar">✕</button></div>`).join('') +
+        (lv && all.length > crs.length ? `<p class="muted small">${all.length - crs.length} criterio${all.length-crs.length>1?'s':''} de otros niveles oculto${all.length-crs.length>1?'s':''}.</p>` : '') + `</div>
+      <div class="row" style="margin:8px 0 0 12px"><button class="btn sm" data-a="newCrit" data-comp="${c.id}">+ Criterio de evaluación${lv?' de '+lvLabel(lv):''}</button>
+        <button class="btn sm ghost" data-a="bulkCrit" data-comp="${c.id}">Pegar varios criterios${lv?' de '+lvLabel(lv):''}</button></div></div>`;
+  });
+  return h;
+}
+// Asignar nivel a varios criterios a la vez
+function lvAssignModal(){
+  const comps = compsOf(ui.cfg.curSubj), m = byId(state.subjects, ui.cfg.curSubj) || {};
+  showModal(`<h3>Asignar niveles · ${esc(m.name||'')}</h3>
+    <p class="ink2 small" style="margin-top:0"><b>1.</b> Marca los criterios de un mismo curso (vienen marcados los que no tienen nivel). <b>2.</b> Marca el curso. <b>3.</b> Asignar. Repite con cada curso.</p>
+    <div class="row" style="margin-bottom:6px"><button class="btn sm" data-a="lvSelAll" data-v="1">Marcar todos</button><button class="btn sm" data-a="lvSelAll" data-v="0">Desmarcar todos</button>
+      <button class="btn sm" data-a="lvSelNone">Solo los sin nivel</button></div>
+    <div class="tree" style="max-height:44vh;overflow:auto">` + comps.map(c => { const crs = critsOf(c.id); if (!crs.length) return '';
+      return `<div class="ce"><b>${esc(c.code)}</b> <span class="small">${esc(c.text.length>90?c.text.slice(0,88)+'…':c.text)}</span>` +
+        crs.map(k => { const has = (k.levels||[]).length;
+          return `<label><input type="checkbox" class="laCr" value="${k.id}" ${has?'data-has="1"':''} ${has?'':'checked'}><span><b>${esc(k.code)}</b> ${esc(k.text)} ${has ? lvChips(k.levels) : '<span class="cc">Sin nivel</span>'}</span></label>`; }).join('') + `</div>`; }).join('') + `</div>
+    <div class="f" style="margin-top:10px;font-size:13px;color:var(--ink2)">Curso de los criterios marcados${lvChecks('laLv', ui.cfg.curLv ? [ui.cfg.curLv] : [])}</div>
+    <div class="row" style="margin-top:14px;justify-content:flex-end"><button class="btn" data-a="closeModal">Cerrar</button><button class="btn pri" data-a="doLvAssign">Asignar</button></div>`);
+}
+function codeTextModal(title, code, text, action, id, extra='', levels=null){
+  showModal(`<h3>${title}</h3>
+    <label class="f">Código<input type="text" id="ctCode" value="${esc(code)}" placeholder="p. ej. CE1 o 1.1" style="width:160px"></label>
+    <label class="f" style="margin-top:10px">Texto<textarea id="ctText" style="min-height:120px">${esc(text)}</textarea></label>
+    ${levels ? `<div class="f" style="margin-top:10px;font-size:13px;color:var(--ink2)">Niveles (si no marcas ninguno, sirve para todos)${lvChecks('ctLv', levels)}</div>` : ''}
+    <div class="row" style="margin-top:14px;justify-content:flex-end"><button class="btn" data-a="closeModal">Cancelar</button>
+    <button class="btn pri" data-a="${action}" data-id="${id||''}" ${extra}>Guardar</button></div>`);
+}
+function bulkModal(title, hint, action, extra=''){
+  showModal(`<h3>${title}</h3><p class="ink2 small">${hint}</p>
+    <textarea id="bulkText" style="min-height:200px"></textarea>
+    <div class="row" style="margin-top:14px;justify-content:flex-end"><button class="btn" data-a="closeModal">Cancelar</button>
+    <button class="btn pri" data-a="${action}" ${extra}>Añadir</button></div>`);
+}
+// "CE1. Texto" / "1.1 Texto" / "1.1. - Texto" → {code, text}
+function parseLines(txt, prefix){
+  return txt.split(/\r?\n/).map(l => l.trim()).filter(Boolean).map((l, i) => {
+    const m = l.match(/^((?:CE)?\s*\d+(?:\.\d+)*)\.?\s*[-–:)]?\s+(.+)$/i);
+    return m ? {code: m[1].replace(/\s+/g,'').toUpperCase().replace(/^CE/,'CE'), text: m[2].trim()} : {code: prefix + (i+1), text: l};
+  });
+}
+function cfgTareas(){
+  const lv = ui.cfg.taskLv || '';
+  let h = `<div class="card"><div class="row" style="justify-content:space-between;align-items:flex-end"><span class="row">${subjPicker('taskSubj','Área / materia')}
+      <label class="f">Nivel${lvSelect('taskLv', lv)}</label></span>
+    <button class="btn pri" data-a="newTask">+ Nueva tarea${lv?' de '+lvLabel(lv):''}</button></div>
+    <p class="ink2 small" style="margin-bottom:0">Cada tarea puede evaluar varias competencias específicas y criterios, y servir para uno o varios niveles. En "Plan" solo aparecen las tareas del nivel del grupo.</p></div>`;
+  const inSubj = state.tareas.filter(t => t.subjectId === ui.cfg.taskSubj), sinNv = inSubj.filter(t => !taskLevels(t).length).length;
+  h += `<div class="${sinNv?'banner':'card'}" style="margin-top:12px">${sinNv ? `<span><b>${sinNv} tarea${sinNv>1?'s':''} sin nivel.</b> Aparece${sinNv>1?'n':''} en todos los niveles. Asígnales su curso.</span>` : `<span class="small ink2">Todas las tareas tienen nivel (propio o por sus criterios).</span>`}
+    <button class="btn sm ${sinNv?'pri':''}" data-a="tlvAssign">Asignar niveles…</button></div>`;
+  const tl = inSubj.filter(t => !lv || taskLevels(t).includes(lv) || !taskLevels(t).length).sort((a,b)=>a.name.localeCompare(b.name,'es'));
+  if (!tl.length) return h + `<div class="card empty" style="margin-top:12px">No hay tareas en esta materia${lv?' para '+lvLabel(lv):''}.</div>`;
+  return h + `<div class="card list" style="margin-top:12px">` + tl.map(t => { const n = records.filter(r=>r.task===t.id).length;
+    return `<div class="it" style="${t.active===false?'opacity:.5':''}"><span style="flex:1"><b>${esc(t.name)}</b> ${taskLevels(t).length ? lvChips(taskLevels(t)) + ((t.levels||[]).length ? '' : ' <span class="muted small">(por sus criterios)</span>') : '<span class="cc">Sin nivel</span>'}${t.desc?`<br><span class="muted small">${esc(t.desc)}</span>`:''}
+      <br>${taskCodes(t) || '<span class="muted small">Sin competencias asociadas</span>'}${n?` <span class="muted small">· ${n} evaluaciones</span>`:''}</span>
+      <button class="btn sm" data-a="toggleTask" data-id="${t.id}">${t.active===false?'Activar':'Ocultar'}</button>
+      <button class="btn sm" data-a="editTask" data-id="${t.id}">Editar</button></div>`; }).join('') + `</div>`;
+}
+function taskModal(t){
+  const x = t || {id:'', name:'', desc:'', subjectId:ui.cfg.taskSubj, compIds:[], critIds:[], levels: ui.cfg.taskLv ? [ui.cfg.taskLv] : []};
+  const comps = compsOf(x.subjectId), cs = new Set(x.compIds||[]), cr = new Set(x.critIds||[]);
+  const m = byId(state.subjects, x.subjectId) || {};
+  showModal(`<h3>${t?'Editar':'Nueva'} tarea · ${esc(m.name||'')}</h3>
+    <label class="f">Nombre<input type="text" id="tName" value="${esc(x.name)}" placeholder="p. ej. Problemas de sumas con llevadas"></label>
+    <label class="f" style="margin-top:10px">Descripción (opcional)<input type="text" id="tDesc" value="${esc(x.desc||'')}"></label>
+    <div class="f" style="margin-top:10px;font-size:13px;color:var(--ink2)">Niveles en los que se usa (si no marcas ninguno, sirve para todos)${lvChecks('tLv', x.levels||[], 'data-c="tLv"')}</div>
+    <h3>Competencias y criterios que evalúa</h3>
+    ${comps.length ? `<div class="tree">` + comps.map(c => `<div class="ce">
+        <label><input type="checkbox" class="tCe" data-c="tCe" value="${c.id}" ${cs.has(c.id)||critsOf(c.id).some(k=>cr.has(k.id))?'checked':''}><span><b>${esc(c.code)}</b> ${esc(c.text)}</span></label>
+        <div class="crs">` + critsOf(c.id).map(k => `<label class="crit" data-lv="${(k.levels||[]).join(' ')}"><input type="checkbox" class="tCr" data-c="tCr" data-ce="${c.id}" value="${k.id}" ${cr.has(k.id)?'checked':''}><span><b>${esc(k.code)}</b> ${esc(k.text)} ${lvChips(k.levels)}</span></label>`).join('') + `</div></div>`).join('') + `</div>`
+      : `<p class="muted">Esta materia no tiene competencias. Añádelas en Ajustes › Currículo; puedes guardar la tarea ahora y asociarlas después.</p>`}
+    <div class="row" style="margin-top:14px;justify-content:space-between">
+      ${t?`<button class="btn danger" data-a="delTask" data-id="${x.id}">Eliminar</button>`:'<span></span>'}
+      <span class="row"><button class="btn" data-a="closeModal">Cancelar</button><button class="btn pri" data-a="saveTask" data-id="${x.id}">Guardar</button></span></div>`);
+  filterTaskTree();
+}
+// En el formulario de tarea, muestra solo los criterios de los niveles marcados (los ya marcados se ven siempre)
+function filterTaskTree(){
+  const sel = [...document.querySelectorAll('.tLv:checked')].map(x => x.value);
+  document.querySelectorAll('.tree label.crit').forEach(l => {
+    const lv = l.dataset.lv ? l.dataset.lv.split(' ') : [];
+    const show = !sel.length || !lv.length || lv.some(v => sel.includes(v)) || l.querySelector('input').checked;
+    l.style.display = show ? '' : 'none';
+  });
+}
+function cfgIndicadores(){
+  const f = ui.cfg.indSubj;
+  const list = state.indicators.filter(i => f==='todas' || i.subjectId===f);
+  let h = `<div class="card"><p class="ink2 small" style="margin-top:0">Son los botones que aparecen en el aula. Hay dos tipos:
+    <b>contador</b> (positivo, negativo o neutro: cada toque suma uno) y <b>puntuación</b> (eliges un valor en una escala, p. ej. 1–4 de una rúbrica o 0–10 de una prueba).
+    Los indicadores de "Todas las materias" aparecen siempre; los de una materia, solo en sus sesiones.</p>
+    <div class="row"><label class="f">Mostrar<select data-c="indFilter"><option value="todas">Todos</option><option value="*" ${f==='*'?'selected':''}>Solo "Todas las materias"</option>
+      ${state.subjects.map(s=>`<option value="${s.id}" ${f===s.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select></label>
+      <span style="flex:1"></span><button class="btn pri" data-a="newInd">+ Nueva anotación</button></div></div>`;
+  CATS.forEach(c => {
+    const l = list.filter(i=>i.cat===c.k); if (!l.length) return;
+    h += `<h3>${c.k} <span class="muted small">· ${c.area==='A'?'académica':'conductual'}</span></h3><div class="card list">` + l.map(i => `<div class="it" style="${i.active===false?'opacity:.5':''}">
+      ${i.mode==='score' ? `<span class="chip z">${i.min}–${i.max}</span>` : chipFor(i)}
+      <span style="flex:1"><b>${esc(i.name)}</b><br><span class="muted small">${i.subjectId==='*'?'Todas las materias':esc((byId(state.subjects,i.subjectId)||{}).name||'?')}</span></span>
+      <button class="btn sm" data-a="toggleInd" data-id="${i.id}">${i.active===false?'Activar':'Ocultar'}</button>
+      <button class="btn sm" data-a="editInd" data-id="${i.id}">Editar</button></div>`).join('') + `</div>`;
+  });
+  return h;
+}
+function indModal(ind){
+  const i = ind || {id:'', name:'', cat:'Conducta', v:1, subjectId:'*', mode:'count', min:1, max:4};
+  showModal(`<h3>${ind?'Editar':'Nueva'} anotación estándar</h3>
+    <label class="f">Nombre<input type="text" id="iName" value="${esc(i.name)}" placeholder="p. ej. Lee con fluidez"></label>
+    <div class="grid" style="margin-top:10px">
+      <label class="f">Tipo de actividad<select id="iCat">${CATS.map(c=>`<option ${c.k===i.cat?'selected':''}>${c.k}</option>`).join('')}</select></label>
+      <label class="f">Materia<select id="iSubj"><option value="*">Todas las materias</option>${state.subjects.map(s=>`<option value="${s.id}" ${s.id===i.subjectId?'selected':''}>${esc(s.name)}</option>`).join('')}</select></label>
+    </div>
+    <label class="f" style="margin-top:10px">Cómo se registra<select id="iMode" onchange="document.getElementById('iScore').style.display=this.value==='score'?'grid':'none';document.getElementById('iVal').style.display=this.value==='score'?'none':'flex'">
+      <option value="count" ${i.mode==='count'?'selected':''}>Contador (cada toque suma 1)</option>
+      <option value="score" ${i.mode==='score'?'selected':''}>Puntuación en una escala</option></select></label>
+    <label class="f" id="iVal" style="margin-top:10px;display:${i.mode==='score'?'none':'flex'}">Valoración<select id="iV">
+      <option value="1" ${i.v>0?'selected':''}>Positiva (+)</option><option value="-1" ${i.v<0?'selected':''}>Negativa (−)</option><option value="0" ${i.v===0?'selected':''}>Neutra (solo registro)</option></select></label>
+    <div class="grid" id="iScore" style="margin-top:10px;display:${i.mode==='score'?'grid':'none'}">
+      <label class="f">Valor mínimo<input type="number" id="iMin" value="${i.min}"></label>
+      <label class="f">Valor máximo<input type="number" id="iMax" value="${i.max}"></label>
+    </div>
+    <p class="muted small">Las puntuaciones se convierten a una escala 0–10 para calcular medias y comparar entre indicadores.</p>
+    <div class="row" style="margin-top:14px;justify-content:space-between">
+      ${ind?`<button class="btn danger" data-a="delInd" data-id="${i.id}">Eliminar</button>`:'<span></span>'}
+      <span class="row"><button class="btn" data-a="closeModal">Cancelar</button><button class="btn pri" data-a="saveInd" data-id="${i.id}">Guardar</button></span></div>`);
+}
+function cfgHorario(){
+  const slots = [...new Set(state.schedule.map(s=>s.start+'|'+s.end))].sort();
+  let h = `<div class="card"><p class="ink2 small" style="margin-top:0">Con el horario, al abrir la aplicación ya aparece el grupo y la materia de la sesión en curso. Toca una sesión para editarla.</p>`;
+  if (!slots.length) h += `<p class="muted">Aún no hay sesiones.</p>`;
+  else {
+    h += `<div style="overflow:auto"><table class="sched"><thead><tr><th></th>${[1,2,3,4,5].map(d=>`<th>${DAYS[d]}</th>`).join('')}</tr></thead><tbody>` +
+      slots.map(sl => { const [a,b] = sl.split('|');
+        return `<tr><th class="small" style="white-space:nowrap">${a}<br>${b}</th>` + [1,2,3,4,5].map(d => `<td>` +
+          state.schedule.filter(s=>s.day===d && s.start===a && s.end===b).map(s => { const m = byId(state.subjects,s.subjectId)||{}, g = byId(state.groups,s.groupId)||{};
+            return `<button class="ss" style="background:${m.color||'#888'};color:${inkOn(m.color||'#888')}" data-a="editSess" data-id="${s.id}"><b>${esc(m.name||'?')}</b><br>${esc(g.name||'?')}</button>`; }).join('') + `</td>`).join('') + `</tr>`; }).join('') +
+      `</tbody></table></div>`;
+  }
+  h += `</div>` + sessForm();
+  return h;
+}
+function sessForm(s){
+  const x = s || {day:1, start:'09:00', end:'09:45', groupId:(state.groups[0]||{}).id, subjectId:(state.subjects[0]||{}).id};
+  const inner = `${s?'':'<h3>Añadir sesión</h3>'}
+    ${s ? `<label class="f">Día<select id="sDay">${[1,2,3,4,5].map(d=>`<option value="${d}" ${d===x.day?'selected':''}>${DAYS_L[d]}</option>`).join('')}</select></label>`
+        : `<div class="row" style="margin-bottom:8px">${[1,2,3,4,5].map(d=>`<label class="row small" style="gap:4px"><input type="checkbox" class="sDays" value="${d}" style="width:22px;height:22px"> ${DAYS_L[d]}</label>`).join('')}</div>`}
+    <div class="row" style="margin-top:8px">
+      <label class="f">Inicio<input type="time" id="sStart" value="${x.start}"></label>
+      <label class="f">Fin<input type="time" id="sEnd" value="${x.end}"></label>
+      <label class="f">Grupo<select id="sGroup">${selectOptions(state.groups, x.groupId)}</select></label>
+      <label class="f">Materia<select id="sSubj">${selectOptions(state.subjects, x.subjectId)}</select></label>
+    </div>`;
+  if (s) return inner;
+  if (!state.groups.length) return `<div class="card" style="margin-top:12px">Crea primero un grupo en "Grupos y alumnado".</div>`;
+  return `<div class="card" style="margin-top:12px">${inner}<div class="row" style="margin-top:10px"><button class="btn pri" data-a="addSess">Añadir a los días marcados</button></div></div>`;
+}
+function cfgDatos(){
+  const n = records.length, demo = state.groups.some(g=>g.demo);
+  return `<div class="card">
+    <p style="margin-top:0"><b>${n}</b> registros · ${state.students.length} alumnos · ${state.groups.length} grupos.<br>
+    <span class="muted small">Última copia de seguridad: ${state.lastBackup ? new Date(state.lastBackup).toLocaleString('es-ES') : 'nunca'}</span></p>
+    <p class="ink2 small">Los datos se guardan <b>solo en esta tablet</b> y no se envían a ningún servidor. Haz copia a menudo y guárdala en un lugar seguro del centro: si se borran los datos del navegador o se pierde la tablet, la copia es la única forma de recuperarlos.</p>
+    <div class="row">
+      <button class="btn pri" data-a="backup">Hacer copia de seguridad</button>
+      <button class="btn" data-a="restore">Restaurar una copia…</button>
+      <button class="btn" data-a="csv">Exportar registros (CSV para Excel)</button>
+    </div>
+    <p class="ink2 small">Para trabajar con los mismos datos en tu ordenador y tu tablet usa <button class="btn sm" data-a="syncOpen">⇅ Sincronizar</button>: junta los datos sin sustituirlos. "Restaurar" sustituye todo.</p></div>
+    <div class="card" style="margin-top:12px"><h3 style="margin-top:0">Preferencias</h3>
+      <label class="row"><input type="checkbox" data-c="prefDesel" ${state.prefs.deselect?'checked':''} style="width:22px;height:22px">
+        Quitar la selección de alumnos después de cada anotación</label>
+      <p class="muted small">Déjalo desactivado si sueles poner varias anotaciones seguidas al mismo alumno.</p>
+      <h3>Calificación sugerida</h3>
+      <p class="ink2 small">La media de nivel (1 No conseguido … 4 Destacado) se traduce a una calificación orientativa. Es solo una sugerencia para tu valoración, nunca una nota automática.</p>
+      <div class="row small">IN &lt; <input type="text" inputmode="decimal" data-c="cut" data-i="0" value="${fmtNum(state.prefs.cuts[0],2)}" style="width:70px"> ≤ SU &lt;
+        <input type="text" inputmode="decimal" data-c="cut" data-i="1" value="${fmtNum(state.prefs.cuts[1],2)}" style="width:70px"> ≤ BI &lt;
+        <input type="text" inputmode="decimal" data-c="cut" data-i="2" value="${fmtNum(state.prefs.cuts[2],2)}" style="width:70px"> ≤ NT &lt;
+        <input type="text" inputmode="decimal" data-c="cut" data-i="3" value="${fmtNum(state.prefs.cuts[3],2)}" style="width:70px"> ≤ SB</div></div>
+    <div class="card" style="margin-top:12px"><h3 style="margin-top:0">Datos de ejemplo</h3>
+      <p class="ink2 small">Crea un grupo ficticio con alumnado y cinco semanas de registros para ver cómo funcionan los informes.</p>
+      <div class="row">${demo?`<button class="btn danger" data-a="delDemo">Borrar los datos de ejemplo</button>`:`<button class="btn" data-a="demo">Cargar datos de ejemplo</button>`}</div></div>
+    <div class="card" style="margin-top:12px"><h3 style="margin-top:0">Zona peligrosa</h3>
+      <button class="btn danger" data-a="wipe">Borrar todos los datos de esta tablet</button></div>`;
+}
+
+// ===================================================================
+//   ACCIONES
+// ===================================================================
+const A = {
+  tab: t => { ui.view = t.dataset.v; ui.pending = null; render(); $('#main').scrollTop = 0; },
+  goCfg: t => { ui.view = 'ajustes'; ui.cfg.tab = t.dataset.v; render(); },
+  selStu: t => { const id = t.dataset.id; ui.sel.has(id) ? ui.sel.delete(id) : ui.sel.add(id); rerender(); },
+  selAll: () => { studentsOf(currentContext().gid).forEach(s=>ui.sel.add(s.id)); rerender(); },
+  selNone: () => { ui.sel.clear(); ui.pending = null; rerender(); },
+  ctxReset: () => { ui.manual = null; ui.sel.clear(); ui.evalMode = 'alumno'; rerender(); },
+  evalMode: t => { ui.evalMode = t.dataset.v; rerender(); },
+  pickTask: t => { ui.evalTask = t.dataset.id; rerender(); },
+  evalTask: t => { const sids = t.dataset.sid ? [t.dataset.sid] : [...ui.sel]; evalTask(t.dataset.task, sids, t.dataset.v); },
+  planHere: () => { const c = currentContext(); planModal(c.date, c.gid, c.subj, c.start); },
+  planSess: t => planModal(t.dataset.date, t.dataset.gid, t.dataset.subj, t.dataset.start),
+  planWeek: t => { const v = Number(t.dataset.v); const d = v ? parseYmd(ui.planWeek || ymd(monday(new Date()))) : monday(new Date()); d.setDate(d.getDate()+v); ui.planWeek = ymd(d); rerender(); },
+  savePlan: () => {
+    const c = ui.planCtx, ids = [...document.querySelectorAll('.pTask:checked')].map(x=>x.value);
+    const p = ensurePlan(c.date, c.gid, c.subj, c.start);
+    // conserva el orden previo y añade las nuevas al final
+    p.taskIds = p.taskIds.filter(id => ids.includes(id)).concat(ids.filter(id => !p.taskIds.includes(id)));
+    if (!p.taskIds.length) state.plan = state.plan.filter(x => x !== p);
+    saveState(); closeModal(); toast('Plan guardado'); rerender();
+  },
+  quickTask: () => {
+    const n = $('#quickTask').value.trim(); if (!n) return;
+    const c = ui.planCtx, checked = [...document.querySelectorAll('.pTask:checked')].map(x=>x.value);
+    const glv = (byId(state.groups, c.gid) || {}).level;
+    const t = {id:uid(), subjectId:c.subj, name:n, desc:'', compIds:[], critIds:[], levels: glv ? [glv] : [], active:true};
+    state.tareas.push(t); saveState();
+    const p = ensurePlan(c.date, c.gid, c.subj, c.start); p.taskIds = [...new Set([...checked, t.id])]; saveState();
+    planModal(c.date, c.gid, c.subj, c.start);
+  },
+  openSess: () => {
+    const c = ui.planCtx, ids = [...document.querySelectorAll('.pTask:checked')].map(x=>x.value);
+    const p = ensurePlan(c.date, c.gid, c.subj, c.start);
+    p.taskIds = p.taskIds.filter(id => ids.includes(id)).concat(ids.filter(id => !p.taskIds.includes(id)));
+    saveState(); closeModal();
+    const isNow = c.date === ymd(new Date());
+    ui.manual = {gid:c.gid, subj:c.subj, date:c.date, start:c.start, pinned:true, key:''};
+    ui.sel.clear(); ui.evalMode = ids.length ? 'tarea' : 'alumno'; ui.view = 'aula'; render();
+    if (!isNow) toast('Sesión abierta para evaluar');
+  },
+  carry: () => carryModal(),
+  doCarry: t => {
+    const c = currentContext(), ids = [...document.querySelectorAll('.cTask:checked')].map(x=>x.value);
+    if (!ids.length) { closeModal(); return; }
+    const p = ensurePlan(t.dataset.date, c.gid, c.subj, t.dataset.start);
+    ids.forEach(id => { if (!p.taskIds.includes(id)) p.taskIds.push(id); });
+    saveState(); closeModal(); toast(`${ids.length} tarea${ids.length>1?'s':''} pasada${ids.length>1?'s':''} a la siguiente sesión`); rerender();
+  },
+  ind: t => {
+    if (!ui.sel.size) return;
+    const ind = byId(state.indicators, t.dataset.id);
+    if (ind.mode === 'score') { ui.pending = ui.pending === ind.id ? null : ind.id; rerender();
+      const pk = $('.picker'); if (pk) pk.scrollIntoView({block:'nearest', behavior:'smooth'}); return; }
+    addRecords(ind, null);
+  },
+  pickVal: t => { addRecords(byId(state.indicators, ui.pending), Number(t.dataset.v)); },
+  pickNum: () => {
+    const ind = byId(state.indicators, ui.pending), v = parseFloat($('#pickNum').value);
+    if (isNaN(v) || v < ind.min || v > ind.max) { alert(`Introduce un valor entre ${ind.min} y ${ind.max}.`); return; }
+    addRecords(ind, v);
+  },
+  pickCancel: () => { ui.pending = null; rerender(); },
+  freeObs: () => {
+    if (!ui.sel.size) return;
+    const names = [...ui.sel].map(id=>splitName((byId(state.students,id)||{}).name||'').first).join(', ');
+    showModal(`<h3>Observación libre</h3><p class="muted small">Para: ${esc(names)}</p>
+      <label class="f">Observación<textarea id="foText" placeholder="Describe lo observado de forma objetiva: qué hizo, cuándo, qué pasó antes y después…">${esc(ui.note)}</textarea></label>
+      <div class="grid" style="margin-top:10px">
+        <label class="f">Tipo de actividad<select id="foCat">${CATS.map(c=>`<option>${c.k}</option>`).join('')}</select></label>
+        <label class="f">Valoración<select id="foV"><option value="0">Neutra</option><option value="1">Positiva (+)</option><option value="-1">Negativa (−)</option></select></label>
+        <label class="f">Nota (opcional)<input type="number" id="foVal" step="any" placeholder="p. ej. 7"></label>
+        <label class="f">Sobre<input type="number" id="foMax" value="10"></label>
+      </div>
+      <p class="muted small">Si pones nota, cuenta como puntuación y entra en las medias.</p>
+      <div class="row" style="margin-top:14px;justify-content:flex-end"><button class="btn" data-a="closeModal">Cancelar</button><button class="btn pri" data-a="saveFree">Guardar</button></div>`);
+    setTimeout(()=>{ const el=$('#foText'); if (el) el.focus(); }, 50);
+  },
+  saveFree: () => {
+    const text = $('#foText').value.trim(), cat = $('#foCat').value, v = Number($('#foV').value);
+    const val = $('#foVal').value === '' ? null : parseFloat($('#foVal').value), max = parseFloat($('#foMax').value) || 10;
+    if (!text && val == null) { alert('Escribe la observación o pon una nota.'); return; }
+    closeModal();
+    const ind = {id:null, name: val!=null ? 'Nota libre' : 'Observación libre', cat, v, mode: val!=null ? 'score' : 'count', min:0, max};
+    addRecords(ind, val, {note:text});
+  },
+  undo: () => {
+    const ids = new Set(ui.lastBatch); if (!ids.size) return;
+    records = records.filter(r => !ids.has(r.id)); delRecords([...ids]); ui.lastBatch = [];
+    hideToast(); toast('Anotación deshecha'); rerender();
+  },
+  noteLast: () => {
+    hideToast();
+    showModal(`<h3>Añadir nota</h3><textarea id="nlText" placeholder="Nota para la anotación que acabas de hacer"></textarea>
+      <div class="row" style="margin-top:12px;justify-content:flex-end"><button class="btn" data-a="closeModal">Cancelar</button><button class="btn pri" data-a="saveNoteLast">Guardar</button></div>`);
+    setTimeout(()=>{ const el=$('#nlText'); if (el) el.focus(); }, 50);
+  },
+  saveNoteLast: () => {
+    const txt = $('#nlText').value.trim(); const ids = new Set(ui.lastBatch);
+    const changed = records.filter(r => ids.has(r.id)); changed.forEach(r => r.note = txt); putRecords(changed);
+    closeModal(); rerender();
+  },
+  editRec: t => editRecModal(t.dataset.id),
+  saveRec: t => {
+    const r = byId(records, t.dataset.id);
+    if (r.task) { const v = $('#erLv').value; r.val = v === 'NR' ? null : Number(v); r.nr = r.val == null; }
+    else if (r.mode === 'score') { const v = parseFloat($('#erVal').value);
+      if (isNaN(v) || v < r.min || v > r.max) { alert(`El valor debe estar entre ${r.min} y ${r.max}.`); return; } r.val = v; }
+    r.note = $('#erNote').value.trim(); putRecords([r]); closeModal(); rerender();
+  },
+  delRec: t => { if (!confirm('¿Borrar este registro?')) return; records = records.filter(r=>r.id!==t.dataset.id); delRecords([t.dataset.id]); closeModal(); rerender(); },
+  closeModal: () => closeModal(),
+  histDay: t => { const d = parseYmd(ui.hist.date); d.setDate(d.getDate()+Number(t.dataset.v)); ui.hist.date = ymd(d); rerender(); },
+  repStu: t => { ui.rep.sid = t.dataset.id; render(); $('#main').scrollTop = 0; },
+  repBack: () => { ui.rep.sid = ''; render(); },
+  print: () => window.print(),
+  cfgTab: t => { ui.cfg.tab = t.dataset.v; render(); },
+  cfgG: t => { ui.cfg.gid = t.dataset.id; rerender(); },
+  addGroup: () => { const n = $('#newGroup').value.trim(); if (!n) return; const g = {id:uid(), name:n}; state.groups.push(g); ui.cfg.gid = g.id; saveState(); rerender(); },
+  delGroup: () => {
+    const g = byId(state.groups, ui.cfg.gid); const nr = records.filter(r=>r.gid===g.id).length;
+    if (!confirm(`¿Eliminar el grupo "${g.name}", su alumnado, sus sesiones del horario y sus ${nr} registros? No se puede deshacer.`)) return;
+    state.groups = state.groups.filter(x=>x.id!==g.id); state.students = state.students.filter(s=>s.groupId!==g.id);
+    state.schedule = state.schedule.filter(s=>s.groupId!==g.id); state.plan = state.plan.filter(p=>p.gid!==g.id);
+    const ids = records.filter(r=>r.gid===g.id).map(r=>r.id); records = records.filter(r=>r.gid!==g.id); delRecords(ids);
+    ui.cfg.gid = ''; saveState(); rerender();
+  },
+  addStudents: () => {
+    const lines = $('#bulkNames').value.split(/\r?\n/).map(l=>l.replace(/\t/g,' ').replace(/\s+/g,' ').trim()).filter(Boolean);
+    if (!lines.length) return;
+    lines.forEach(name => state.students.push({id:uid(), groupId:ui.cfg.gid, name, active:true}));
+    saveState(); toast(`${lines.length} alumno${lines.length>1?'s':''} añadido${lines.length>1?'s':''}`); rerender();
+  },
+  sortStudents: () => {
+    const g = ui.cfg.gid; const inG = state.students.filter(s=>s.groupId===g).sort((a,b)=>a.name.localeCompare(b.name,'es'));
+    state.students = state.students.filter(s=>s.groupId!==g).concat(inG); saveState(); rerender();
+  },
+  toggleStu: t => { const s = byId(state.students, t.dataset.id); s.active = s.active === false; saveState(); rerender(); },
+  delStu: t => {
+    const s = byId(state.students, t.dataset.id); const nr = records.filter(r=>r.sid===s.id).length;
+    if (!confirm(`¿Borrar a ${s.name}${nr?` y sus ${nr} registros`:''}? Si solo se ha ido del grupo, mejor "Dar de baja".`)) return;
+    state.students = state.students.filter(x=>x.id!==s.id); const ids = records.filter(r=>r.sid===s.id).map(r=>r.id);
+    records = records.filter(r=>r.sid!==s.id); delRecords(ids); saveState(); rerender();
+  },
+  addSubj: () => { const n = $('#newSubj').value.trim(); if (!n) return;
+    state.subjects.push({id:uid(), name:n, color:PALETTE[state.subjects.length % PALETTE.length]}); saveState(); rerender(); },
+  delSubj: t => {
+    const id = t.dataset.id, s = byId(state.subjects, id);
+    if (records.some(r=>r.subj===id)) { alert(`"${s.name}" tiene registros y no se puede eliminar. Puedes cambiarle el nombre.`); return; }
+    if (!confirm(`¿Eliminar "${s.name}", sus anotaciones específicas y sus sesiones del horario?`)) return;
+    const comps = state.competencias.filter(c=>c.subjectId===id).map(c=>c.id);
+    state.criterios = state.criterios.filter(k=>!comps.includes(k.compId)); state.competencias = state.competencias.filter(c=>c.subjectId!==id);
+    state.tareas = state.tareas.filter(x=>x.subjectId!==id); state.plan = state.plan.filter(p=>p.subj!==id);
+    state.subjects = state.subjects.filter(x=>x.id!==id); state.indicators = state.indicators.filter(i=>i.subjectId!==id);
+    state.schedule = state.schedule.filter(x=>x.subjectId!==id); saveState(); rerender();
+  },
+  newComp: () => codeTextModal('Nueva competencia específica', 'CE' + (compsOf(ui.cfg.curSubj).length + 1), '', 'saveComp', ''),
+  editComp: t => { const c = byId(state.competencias, t.dataset.id); codeTextModal('Editar competencia específica', c.code, c.text, 'saveComp', c.id); },
+  saveComp: t => {
+    const code = $('#ctCode').value.trim(), text = $('#ctText').value.trim(); if (!code || !text) { alert('Rellena código y texto.'); return; }
+    if (t.dataset.id) Object.assign(byId(state.competencias, t.dataset.id), {code, text});
+    else state.competencias.push({id:uid(), subjectId:ui.cfg.curSubj, code, text});
+    saveState(); closeModal(); rerender();
+  },
+  delComp: t => {
+    const c = byId(state.competencias, t.dataset.id), crs = critsOf(c.id).map(x=>x.id);
+    const used = state.tareas.filter(x => (x.compIds||[]).includes(c.id) || (x.critIds||[]).some(id=>crs.includes(id))).length;
+    if (!confirm(`¿Eliminar ${c.code} y sus ${crs.length} criterios?${used?`\nSe quitará de ${used} tarea${used>1?'s':''}.`:''} Las evaluaciones ya hechas se conservan.`)) return;
+    state.competencias = state.competencias.filter(x=>x.id!==c.id); state.criterios = state.criterios.filter(x=>x.compId!==c.id);
+    state.tareas.forEach(x => { x.compIds = (x.compIds||[]).filter(id=>id!==c.id); x.critIds = (x.critIds||[]).filter(id=>!crs.includes(id)); });
+    saveState(); rerender();
+  },
+  bulkComp: () => bulkModal('Pegar competencias específicas', 'Una por línea, con su código al principio. Ejemplo:<br><i>CE1. Interpretar situaciones de la vida cotidiana…</i><br><i>CE2. Resolver…</i>', 'saveBulkComp'),
+  saveBulkComp: () => {
+    const items = parseLines($('#bulkText').value, 'CE'); if (!items.length) return;
+    items.forEach(it => state.competencias.push({id:uid(), subjectId:ui.cfg.curSubj, code:it.code, text:it.text}));
+    saveState(); closeModal(); toast(`${items.length} competencias añadidas`); rerender();
+  },
+  newCrit: t => { const c = byId(state.competencias, t.dataset.comp), lv = ui.cfg.curLv || '';
+    const n = critsOf(c.id).filter(k => lvMatch(k.levels, lv)).length + 1;
+    codeTextModal(`Nuevo criterio de ${esc(c.code)}`, `${c.code.replace(/^CE/i,'')}.${n}`, '', 'saveCrit', '', `data-comp="${c.id}"`, lv ? [lv] : []); },
+  editCrit: t => { const k = byId(state.criterios, t.dataset.id); codeTextModal('Editar criterio de evaluación', k.code, k.text, 'saveCrit', k.id, '', k.levels || []); },
+  saveCrit: t => {
+    const code = $('#ctCode').value.trim(), text = $('#ctText').value.trim(); if (!code || !text) { alert('Rellena código y texto.'); return; }
+    const levels = [...document.querySelectorAll('.ctLv:checked')].map(x => x.value);
+    if (t.dataset.id) Object.assign(byId(state.criterios, t.dataset.id), {code, text, levels});
+    else state.criterios.push({id:uid(), compId:t.dataset.comp, code, text, levels});
+    saveState(); closeModal(); rerender();
+  },
+  delCrit: t => {
+    const k = byId(state.criterios, t.dataset.id); if (!confirm(`¿Eliminar el criterio ${k.code}? Las evaluaciones ya hechas se conservan.`)) return;
+    state.criterios = state.criterios.filter(x=>x.id!==k.id); state.tareas.forEach(x => x.critIds = (x.critIds||[]).filter(id=>id!==k.id));
+    saveState(); rerender();
+  },
+  bulkCrit: t => { const c = byId(state.competencias, t.dataset.comp);
+    const lv = ui.cfg.curLv || '';
+    bulkModal(`Pegar criterios de ${esc(c.code)}${lv?' · '+lvLabel(lv):''}`, `Uno por línea, con su código al principio. Ejemplo:<br><i>1.1. Comprender preguntas…</i><br><i>1.2. Identificar…</i><br>${lv ? `Se asignarán a <b>${lvLabel(lv)}</b>.` : '<b>No has elegido nivel</b>: servirán para todos. Elige antes un nivel arriba si son de un curso concreto.'}`, 'saveBulkCrit', `data-comp="${c.id}"`); },
+  saveBulkCrit: t => {
+    const c = byId(state.competencias, t.dataset.comp), items = parseLines($('#bulkText').value, c.code.replace(/^CE/i,'') + '.'); if (!items.length) return;
+    const lv = ui.cfg.curLv || '';
+    items.forEach(it => state.criterios.push({id:uid(), compId:c.id, code:it.code, text:it.text, levels: lv ? [lv] : []}));
+    saveState(); closeModal(); toast(`${items.length} criterios añadidos`); rerender();
+  },
+  newTask: () => taskModal(null),
+  editTask: t => taskModal(byId(state.tareas, t.dataset.id)),
+  toggleTask: t => { const x = byId(state.tareas, t.dataset.id); x.active = x.active === false; saveState(); rerender(); },
+  saveTask: t => {
+    const name = $('#tName').value.trim(); if (!name) { alert('Ponle un nombre a la tarea.'); return; }
+    const critIds = [...document.querySelectorAll('.tCr:checked')].map(x=>x.value);
+    const withCrit = new Set(critIds.map(id => (byId(state.criterios,id)||{}).compId));
+    // Solo guardamos como "competencia sin criterio" las marcadas que no tienen ningún criterio marcado
+    const compIds = [...document.querySelectorAll('.tCe:checked')].map(x=>x.value).filter(id => !withCrit.has(id));
+    const data = {name, desc:$('#tDesc').value.trim(), compIds, critIds, levels:[...document.querySelectorAll('.tLv:checked')].map(x=>x.value)};
+    if (t.dataset.id) Object.assign(byId(state.tareas, t.dataset.id), data);
+    else state.tareas.push({id:uid(), subjectId:ui.cfg.taskSubj, active:true, ...data});
+    saveState(); closeModal(); rerender();
+  },
+  delTask: t => {
+    const x = byId(state.tareas, t.dataset.id), n = records.filter(r=>r.task===x.id).length;
+    if (n) { if (!confirm(`"${x.name}" tiene ${n} evaluaciones. Se ocultará (no se borra) para conservarlas. ¿Continuar?`)) return; x.active = false; }
+    else { if (!confirm(`¿Eliminar "${x.name}"?`)) return; state.tareas = state.tareas.filter(y=>y.id!==x.id); state.plan.forEach(p => p.taskIds = p.taskIds.filter(id=>id!==x.id)); }
+    saveState(); closeModal(); rerender();
+  },
+  newInd: () => indModal(null),
+  editInd: t => indModal(byId(state.indicators, t.dataset.id)),
+  toggleInd: t => { const i = byId(state.indicators, t.dataset.id); i.active = i.active === false; saveState(); rerender(); },
+  saveInd: t => {
+    const name = $('#iName').value.trim(); if (!name) { alert('Ponle un nombre.'); return; }
+    const mode = $('#iMode').value, min = parseFloat($('#iMin').value), max = parseFloat($('#iMax').value);
+    if (mode === 'score' && !(max > min)) { alert('El valor máximo debe ser mayor que el mínimo.'); return; }
+    const data = {name, cat:$('#iCat').value, subjectId:$('#iSubj').value, mode, v: mode==='score'?0:Number($('#iV').value),
+                  min: mode==='score'?min:0, max: mode==='score'?max:0};
+    if (t.dataset.id) Object.assign(byId(state.indicators, t.dataset.id), data);
+    else state.indicators.push({id:uid(), active:true, ...data});
+    saveState(); closeModal(); rerender();
+  },
+  delInd: t => { if (!confirm('¿Eliminar esta anotación? Los registros ya hechos se conservan.')) return;
+    state.indicators = state.indicators.filter(i=>i.id!==t.dataset.id); saveState(); closeModal(); rerender(); },
+  addSess: () => {
+    const days = [...document.querySelectorAll('.sDays:checked')].map(c=>Number(c.value));
+    const start = $('#sStart').value, end = $('#sEnd').value;
+    if (!days.length) { alert('Marca al menos un día.'); return; }
+    if (!(start < end)) { alert('La hora de fin debe ser posterior a la de inicio.'); return; }
+    const gid = $('#sGroup').value, subj = $('#sSubj').value;
+    const clash = days.filter(d => state.schedule.some(s => s.day===d && s.groupId===gid && start < s.end && s.start < end));
+    if (clash.length && !confirm(`Ya hay una sesión de este grupo que se solapa el ${clash.map(d=>DAYS_L[d]).join(', ')}. ¿Añadir igualmente?`)) return;
+    days.forEach(day => state.schedule.push({id:uid(), day, start, end, groupId:gid, subjectId:subj}));
+    saveState(); toast('Sesión añadida'); rerender();
+  },
+  editSess: t => {
+    const s = byId(state.schedule, t.dataset.id);
+    showModal(`<h3>Editar sesión</h3>${sessForm(s)}
+      <div class="row" style="margin-top:14px;justify-content:space-between"><button class="btn danger" data-a="delSess" data-id="${s.id}">Eliminar</button>
+      <span class="row"><button class="btn" data-a="closeModal">Cancelar</button><button class="btn pri" data-a="saveSess" data-id="${s.id}">Guardar</button></span></div>`);
+  },
+  saveSess: t => {
+    const s = byId(state.schedule, t.dataset.id), start = $('#sStart').value, end = $('#sEnd').value;
+    if (!(start < end)) { alert('La hora de fin debe ser posterior a la de inicio.'); return; }
+    Object.assign(s, {day:Number($('#sDay').value), start, end, groupId:$('#sGroup').value, subjectId:$('#sSubj').value});
+    saveState(); closeModal(); rerender();
+  },
+  delSess: t => { state.schedule = state.schedule.filter(s=>s.id!==t.dataset.id); saveState(); closeModal(); rerender(); },
+  backup: () => doBackup(),
+  restore: () => pickFile('restore'),
+  syncOpen: () => syncModal(),
+  syncOut: () => doSyncOut(),
+  syncIn: () => pickFile('sync'),
+  lvAssign: () => lvAssignModal(),
+  tlvAssign: () => {
+    const ts = state.tareas.filter(t => t.subjectId === ui.cfg.taskSubj && t.active !== false).sort((a,b)=>a.name.localeCompare(b.name,'es'));
+    showModal(`<h3>Asignar niveles a tareas</h3>
+      <p class="ink2 small" style="margin-top:0">Marca las tareas de un mismo curso, marca el curso y pulsa Asignar. Vienen marcadas las que no tienen nivel.</p>
+      <div class="row" style="margin-bottom:6px"><button class="btn sm" data-a="lvSelAll" data-v="1">Marcar todas</button><button class="btn sm" data-a="lvSelAll" data-v="0">Desmarcar todas</button></div>
+      <div class="tree" style="max-height:44vh;overflow:auto">` + ts.map(t => { const has = taskLevels(t).length;
+        return `<label><input type="checkbox" class="laCr" value="${t.id}" ${has?'':'checked'}><span><b>${esc(t.name)}</b> ${has ? lvChips(taskLevels(t)) : '<span class="cc">Sin nivel</span>'}</span></label>`; }).join('') + `</div>
+      <div class="f" style="margin-top:10px;font-size:13px;color:var(--ink2)">Curso de las tareas marcadas${lvChecks('laLv', ui.cfg.taskLv ? [ui.cfg.taskLv] : [])}</div>
+      <div class="row" style="margin-top:14px;justify-content:flex-end"><button class="btn" data-a="closeModal">Cerrar</button><button class="btn pri" data-a="doTlvAssign">Asignar</button></div>`);
+  },
+  doTlvAssign: () => {
+    const ids = [...document.querySelectorAll('.laCr:checked')].map(x => x.value), lv = [...document.querySelectorAll('.laLv:checked')].map(x => x.value);
+    if (!ids.length) { alert('Marca al menos una tarea.'); return; }
+    ids.forEach(id => { const t = byId(state.tareas, id); if (t) t.levels = lv.slice(); });
+    saveState(); closeModal(); toast(`${ids.length} tarea${ids.length>1?'s':''} asignada${ids.length>1?'s':''} a ${lv.length ? lv.map(lvLabel).join(', ') : 'todos los niveles'}`); rerender();
+  },
+  lvSelAll: t => { document.querySelectorAll('.laCr').forEach(x => x.checked = t.dataset.v === '1'); },
+  lvSelNone: () => { document.querySelectorAll('.laCr').forEach(x => x.checked = !x.dataset.has); },
+  doLvAssign: () => {
+    const ids = [...document.querySelectorAll('.laCr:checked')].map(x => x.value), lv = [...document.querySelectorAll('.laLv:checked')].map(x => x.value);
+    if (!ids.length) { alert('Marca al menos un criterio.'); return; }
+    if (!lv.length && !confirm('No has marcado ningún nivel: esos criterios quedarán para todos los niveles. ¿Continuar?')) return;
+    ids.forEach(id => { const k = byId(state.criterios, id); if (k) k.levels = lv.slice(); });
+    saveState(); closeModal(); toast(`${ids.length} criterio${ids.length>1?'s':''} asignado${ids.length>1?'s':''} a ${lv.length ? lv.map(lvLabel).join(', ') : 'todos los niveles'}`); rerender();
+  },
+  curExport: () => curExportModal(),
+  doCurExport: () => doCurExport(),
+  curImport: () => pickFile('curric'),
+  curCentro: () => loadCentro(),
+  csv: () => doCSV(),
+  demo: () => loadDemo(),
+  delDemo: () => {
+    if (!confirm('¿Borrar el grupo de ejemplo y todos sus registros?')) return;
+    const gids = new Set(state.groups.filter(g=>g.demo).map(g=>g.id));
+    state.groups = state.groups.filter(g=>!gids.has(g.id)); state.students = state.students.filter(s=>!gids.has(s.groupId));
+    state.schedule = state.schedule.filter(s=>!gids.has(s.groupId)); state.plan = state.plan.filter(p=>!gids.has(p.gid));
+    const dc = new Set(state.competencias.filter(c=>c.demo).map(c=>c.id));
+    state.criterios = state.criterios.filter(k=>!dc.has(k.compId)); state.competencias = state.competencias.filter(c=>!c.demo);
+    state.tareas = state.tareas.filter(t=>!t.demo);
+    const ids = records.filter(r=>gids.has(r.gid)).map(r=>r.id); records = records.filter(r=>!gids.has(r.gid)); delRecords(ids);
+    saveState(); rerender();
+  },
+  wipe: async () => {
+    const w = prompt('Esto borra TODO (grupos, horario, registros). Escribe BORRAR para confirmar.');
+    if (w !== 'BORRAR') return;
+    await tx('records','readwrite', s => s.clear()); records = []; state = defaultState(); buildSnap(); await saveState(true);
+    ui.sel.clear(); ui.manual = null; ui.last = null; render();
+  }
+};
+
+// ---------- Cambios en selects/inputs ----------
+const C = {
+  ctxG: t => { const c = currentContext(); ui.manual = {gid:t.value, subj:c.subj, key:c.key}; ui.last = {gid:t.value, subj:c.subj}; ui.sel.clear(); ui.pending = null; rerender(); },
+  ctxS: t => { const c = currentContext(); ui.manual = {gid:c.gid, subj:t.value, key:c.key}; ui.last = {gid:c.gid, subj:t.value}; ui.pending = null; rerender(); },
+  histDate: t => { if (t.value) { ui.hist.date = t.value; rerender(); } },
+  histG: t => { ui.hist.gid = t.value; ui.hist.sid = ''; rerender(); },
+  histS: t => { ui.hist.sid = t.value; rerender(); },
+  histM: t => { ui.hist.subj = t.value; rerender(); },
+  repG: t => { ui.rep.gid = t.value; ui.rep.sid = ''; render(); },
+  repS: t => { ui.rep.sid = t.value; render(); },
+  repM: t => { ui.rep.subj = t.value; rerender(); },
+  repP: t => { ui.rep.period = t.value; rerender(); },
+  repFrom: t => { ui.rep.from = t.value; rerender(); },
+  repTo: t => { ui.rep.to = t.value; rerender(); },
+  groupName: t => { const g = byId(state.groups, ui.cfg.gid); if (t.value.trim()) { g.name = t.value.trim(); saveState(); rerender(); } },
+  stuName: t => { const s = byId(state.students, t.dataset.id); if (t.value.trim()) { s.name = t.value.trim(); saveState(); } },
+  subjName: t => { const s = byId(state.subjects, t.dataset.id); if (t.value.trim()) { s.name = t.value.trim(); saveState(); } },
+  subjColor: t => { byId(state.subjects, t.dataset.id).color = t.value; saveState(); },
+  cfgSubj: t => { ui.cfg[t.dataset.k] = t.value; rerender(); },
+  curLv: t => { ui.cfg.curLv = t.value; rerender(); },
+  taskLv: t => { ui.cfg.taskLv = t.value; rerender(); },
+  tLv: () => filterTaskTree(),
+  planGroupLv: t => { if (!t.value) return; const c = ui.planCtx; const g = byId(state.groups, c.gid); g.level = t.value; saveState(); planModal(c.date, c.gid, c.subj, c.start); },
+  evoSel: t => { ui.rep.evo = t.value; rerender(); },
+  groupLevel: t => { const g = byId(state.groups, ui.cfg.gid); g.level = t.value; saveState(); rerender(); },
+  devName: t => { state.prefs.device = t.value.trim(); saveState(); },
+  tCr: t => { if (t.checked) { const ce = document.querySelector(`.tCe[value="${t.dataset.ce}"]`); if (ce) ce.checked = true; } },
+  tCe: t => { if (!t.checked) document.querySelectorAll(`.tCr[data-ce="${t.value}"]`).forEach(x => x.checked = false); },
+  cut: t => { const i = Number(t.dataset.i), v = parseFloat(t.value.replace(',','.')); const c = state.prefs.cuts.slice(); if (isNaN(v)) return; c[i] = v;
+    if (c.every((x,k) => k === 0 || x > c[k-1])) { state.prefs.cuts = c; saveState(); } else { alert('Cada corte debe ser mayor que el anterior.'); rerender(); } },
+  indFilter: t => { ui.cfg.indSubj = t.value; rerender(); },
+  prefDesel: t => { state.prefs.deselect = t.checked; saveState(); }
+};
+
+// ---------- Modal, toast y tooltip ----------
+function showModal(html){ $('#modalBox').innerHTML = html; $('#modal').classList.add('show'); }
+function closeModal(){ $('#modal').classList.remove('show'); $('#modalBox').innerHTML = ''; }
+let toastTimer = null;
+function toast(msg, btns=[]){
+  $('#toastMsg').textContent = msg;
+  $('#toastBtns').innerHTML = btns.map(([l,a])=>`<button data-a="${a}">${l}</button>`).join(' ');
+  $('#toast').classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(hideToast, btns.length ? 6000 : 2200);
+}
+function hideToast(){ $('#toast').classList.remove('show'); }
+function showTip(el, x, y){
+  const tip = $('#tip'); tip.textContent = el.getAttribute('data-tip'); tip.style.display = 'block';
+  const w = tip.offsetWidth, hgt = tip.offsetHeight;
+  tip.style.left = Math.max(8, Math.min(innerWidth - w - 8, x - w/2)) + 'px';
+  tip.style.top = Math.max(8, y - hgt - 14) + 'px';
+}
+document.addEventListener('pointermove', e => {
+  if (e.pointerType !== 'mouse') return;
+  const el = e.target.closest && e.target.closest('[data-tip]');
+  el ? showTip(el, e.clientX, e.clientY) : ($('#tip').style.display = 'none');
+});
+document.addEventListener('pointerdown', e => {
+  if (e.pointerType === 'mouse') return;
+  const el = e.target.closest && e.target.closest('[data-tip]');
+  el ? showTip(el, e.clientX, e.clientY) : ($('#tip').style.display = 'none');
+});
+
+// ---------- Delegación de eventos ----------
+document.addEventListener('click', e => {
+  if (e.target.id === 'modal') { closeModal(); return; }
+  const t = e.target.closest('[data-a]'); if (!t || t.disabled) return;
+  const fn = A[t.dataset.a]; if (fn) fn(t, e);
+});
+document.addEventListener('change', e => { const t = e.target.closest('[data-c]'); if (t && C[t.dataset.c]) C[t.dataset.c](t, e); });
+document.addEventListener('input', e => { if (e.target.dataset && e.target.dataset.i === 'note') ui.note = e.target.value; });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.id === 'newGroup') A.addGroup();
+  if (e.key === 'Enter' && e.target.id === 'newSubj') A.addSubj();
+  if (e.key === 'Escape') closeModal();
+});
+
+// ---------- Copias de seguridad y exportación ----------
+async function saveFile(name, blob){
+  try {
+    const file = new File([blob], name, {type: blob.type});
+    if (navigator.canShare && navigator.canShare({files:[file]}) && /iPad|iPhone|Macintosh/.test(navigator.userAgent) && 'ontouchend' in document) {
+      await navigator.share({files:[file], title:name}); return true;
+    }
+  } catch (err) { if (err && err.name === 'AbortError') return false; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+  return true;
+}
+async function doBackup(){
+  const data = {app:'RegistrAula', version:1, date:new Date().toISOString(), state, records};
+  const ok = await saveFile(`RegistrAula_copia_${ymd(new Date())}.json`, new Blob([JSON.stringify(data)], {type:'application/json'}));
+  if (ok) { state.lastBackup = Date.now(); saveState(); toast('Copia de seguridad creada'); rerender(); }
+}
+// ---------- Archivos: restaurar, sincronizar, currículo ----------
+function pickFile(mode){ ui.fileMode = mode; $('#fileIn').value = ''; $('#fileIn').click(); }
+$('#fileIn').addEventListener('change', async e => {
+  const f = e.target.files[0]; if (!f) return;
+  let data;
+  try { data = JSON.parse(await f.text()); } catch (err) { alert('El archivo no se puede leer: ' + err.message); return; }
+  try {
+    if (ui.fileMode === 'curric') {
+      if (data.app !== 'RegistrAula' || data.type !== 'curriculo') throw new Error('No es un archivo de currículo de RegistrAula');
+      const r = importCurric(data); closeModal(); toast(r); rerender(); return;
+    }
+    if (data.app !== 'RegistrAula' || !data.state || !Array.isArray(data.records)) throw new Error('No es una copia ni un archivo de sincronización de RegistrAula');
+    if (ui.fileMode === 'sync') {
+      const r = await mergeData(data);
+      state.syncInfo = Object.assign({}, state.syncInfo, {lastIn: Date.now(), from: data.device || 'otro dispositivo'}); await saveState(true);
+      closeModal(); toast(`Fusionado: ${r.added} nuevos, ${r.updated} actualizados, ${r.removed} borrados`); render(); return;
+    }
+    if (!confirm(`La copia es del ${new Date(data.date).toLocaleString('es-ES')} y tiene ${data.records.length} registros.\nSe REEMPLAZARÁN todos los datos actuales de esta tablet. ¿Continuar?\n\n(Si quieres juntar datos de dos dispositivos, usa "Sincronizar" en lugar de restaurar.)`)) return;
+    await tx('records','readwrite', s => s.clear());
+    state = migrate(data.state); records = data.records.sort((a,b)=>a.ts-b.ts);
+    buildSnap(); await saveState(true); await putRecords(records, true);
+    ui.sel.clear(); ui.manual = null; ui.last = null; ui.cfg.gid = ''; ui.rep.gid = ''; ui.hist.gid = '';
+    toast('Copia restaurada'); render();
+  } catch (err) { alert('No se ha podido completar: ' + err.message); }
+});
+
+// ---------- Sincronización por archivo (fusión sin pérdidas) ----------
+function syncModal(){
+  const si = state.syncInfo || {};
+  const f = ts => ts ? new Date(ts).toLocaleString('es-ES') : 'nunca';
+  showModal(`<h3>Sincronizar con otro dispositivo</h3>
+    <p class="ink2 small" style="margin-top:0">Junta los datos de este dispositivo con los de otro (por ejemplo, tu Mac y tu tablet) sin perder nada: se suman los registros de los dos y, si algo se cambió en ambos, gana el cambio más reciente. Los borrados también se trasladan.</p>
+    <label class="f">Nombre de este dispositivo<input type="text" data-c="devName" value="${esc(state.prefs.device||'')}" placeholder="p. ej. iPad o Mac"></label>
+    <div class="card" style="margin-top:12px"><b>1. En el dispositivo donde has trabajado</b>
+      <p class="small ink2">Pulsa "Enviar" y guarda el archivo en iCloud Drive o Google Drive (siempre en la misma carpeta, p. ej. <i>RegistrAula</i>).</p>
+      <button class="btn pri" data-a="syncOut">⇪ Enviar mis datos</button>
+      <p class="muted small" style="margin-bottom:0">Último envío: ${f(si.lastOut)}</p></div>
+    <div class="card" style="margin-top:10px"><b>2. En el otro dispositivo</b>
+      <p class="small ink2">Pulsa "Recibir" y elige el archivo más reciente del otro dispositivo.</p>
+      <button class="btn pri" data-a="syncIn">⇩ Recibir y fusionar</button>
+      <p class="muted small" style="margin-bottom:0">Última recepción: ${f(si.lastIn)}${si.from?' · de '+esc(si.from):''}</p></div>
+    <p class="muted small">Para trabajar en los dos: al terminar en uno, "Enviar"; al empezar en el otro, "Recibir". Si has trabajado en los dos a la vez, haz enviar y recibir en ambos sentidos. El archivo contiene datos del alumnado: guárdalo solo en tu nube personal o del centro.</p>
+    <div class="row" style="justify-content:flex-end"><button class="btn" data-a="closeModal">Cerrar</button></div>`);
+}
+async function doSyncOut(){
+  const dev = (state.prefs.device || 'dispositivo').replace(/[^\wÀ-ÿ-]+/g,'_');
+  const n = new Date(), data = {app:'RegistrAula', type:'sync', version:3, device: state.prefs.device || 'dispositivo', date:n.toISOString(), state, records};
+  const ok = await saveFile(`RegistrAula_sync_${dev}_${ymd(n)}_${pad(n.getHours())}${pad(n.getMinutes())}.json`, new Blob([JSON.stringify(data)], {type:'application/json'}));
+  if (ok) { state.syncInfo = Object.assign({}, state.syncInfo, {lastOut: Date.now()}); state.lastBackup = Date.now(); await saveState(true); toast('Datos enviados'); syncModal(); }
+}
+async function mergeData(data){
+  const rs = migrate(JSON.parse(JSON.stringify(data.state))), rt = rs.tomb || {}, lt = state.tomb;
+  let added = 0, updated = 0, removed = 0;
+  COLLS.forEach(c => {
+    const loc = state[c] || (state[c] = []), m = new Map(loc.map(e => [e.id, e]));
+    (rs[c] || []).forEach(re => {
+      const ru = re._u || 0, le = m.get(re.id);
+      if (lt[re.id] && lt[re.id] >= ru) return;               // lo borré yo después
+      if (!le) { loc.push(re); m.set(re.id, re); added++; }
+      else if (ru > (le._u || 0)) { Object.keys(le).forEach(k => delete le[k]); Object.assign(le, re); updated++; }
+    });
+  });
+  Object.entries(rt).forEach(([id, ts]) => {
+    COLLS.forEach(c => { const i = state[c].findIndex(e => e.id === id); if (i >= 0 && (state[c][i]._u || 0) <= ts) { state[c].splice(i, 1); removed++; } });
+    if (!lt[id] || lt[id] < ts) lt[id] = ts;
+  });
+  const rm = new Map(records.map(r => [r.id, r])), put = [], del = [];
+  data.records.forEach(rr => {
+    const ru = rr._u || rr.ts || 0, lr = rm.get(rr.id);
+    if (lt[rr.id] && lt[rr.id] >= ru) return;
+    if (!lr) { records.push(rr); rm.set(rr.id, rr); put.push(rr); added++; }
+    else if (ru > (lr._u || lr.ts || 0)) { Object.assign(lr, rr); put.push(lr); updated++; }
+  });
+  Object.entries(rt).forEach(([id, ts]) => { const lr = rm.get(id); if (lr && (lr._u || lr.ts || 0) <= ts) del.push(id); });
+  if (del.length) { const d = new Set(del); records = records.filter(r => !d.has(r.id)); removed += del.length; await rawDel(del); }
+  records.sort((a,b) => a.ts - b.ts);
+  if (put.length) await putRecords(put, true);
+  buildSnap(); await saveState(true);
+  return {added, updated, removed};
+}
+
+// ---------- Compartir currículo ----------
+function curExportModal(){
+  const subs = state.subjects.filter(s => state.competencias.some(c => c.subjectId === s.id) || state.tareas.some(t => t.subjectId === s.id));
+  if (!subs.length) { alert('Aún no hay currículo que exportar.'); return; }
+  showModal(`<h3>Exportar currículo</h3>
+    <p class="ink2 small" style="margin-top:0">Genera un archivo con competencias, criterios y, si quieres, tareas. No incluye alumnado ni registros, así que se puede compartir sin problema.</p>
+    <div class="tree">` + subs.map(s => `<label><input type="checkbox" class="xSubj" value="${s.id}" checked><span>${esc(s.name)} <span class="muted small">(${state.competencias.filter(c=>c.subjectId===s.id).length} competencias · ${state.tareas.filter(t=>t.subjectId===s.id&&t.active!==false).length} tareas)</span></span></label>`).join('') + `</div>
+    <label class="row" style="margin-top:8px"><input type="checkbox" id="xTasks" checked style="width:20px;height:20px"> Incluir las tareas</label>
+    <p class="muted small"><b>Para publicarlo como currículo del centro:</b> sube el archivo a tu repositorio de GitHub con el nombre <code>curriculo.json</code>, junto a <code>index.html</code>. Tus compañeros lo cargarán con "Cargar currículo del centro".</p>
+    <div class="row" style="justify-content:flex-end"><button class="btn" data-a="closeModal">Cancelar</button><button class="btn pri" data-a="doCurExport">Guardar archivo</button></div>`);
+}
+async function doCurExport(){
+  const sids = new Set([...document.querySelectorAll('.xSubj:checked')].map(x => x.value)), withT = $('#xTasks').checked;
+  const comps = state.competencias.filter(c => sids.has(c.subjectId)), cids = new Set(comps.map(c => c.id));
+  const data = {app:'RegistrAula', type:'curriculo', version:1, date:new Date().toISOString(),
+    subjects: state.subjects.filter(s => sids.has(s.id)).map(s => ({ref:s.id, name:s.name, color:s.color})),
+    competencias: comps.map(c => ({ref:c.id, subject:c.subjectId, code:c.code, text:c.text})),
+    criterios: state.criterios.filter(k => cids.has(k.compId)).map(k => ({ref:k.id, comp:k.compId, code:k.code, text:k.text, levels:k.levels||[]})),
+    tareas: withT ? state.tareas.filter(t => sids.has(t.subjectId) && t.active !== false).map(t => ({subject:t.subjectId, name:t.name, desc:t.desc||'', levels:t.levels||[], comps:t.compIds||[], crits:t.critIds||[]})) : []};
+  if (await saveFile(`curriculo_${ymd(new Date())}.json`, new Blob([JSON.stringify(data, null, 1)], {type:'application/json'}))) { closeModal(); toast('Currículo exportado'); }
+}
+// Fusiona un currículo: no borra nada; coincide materias por nombre, competencias por código, criterios por código y nivel, tareas por nombre
+function importCurric(data){
+  const norm_ = x => String(x||'').trim().toLowerCase();
+  const lvKey = a => (a||[]).slice().sort().join(',');
+  const mapS = {}, mapC = {}, mapK = {}; let n = {s:0, c:0, k:0, t:0, u:0};
+  (data.subjects||[]).forEach(rs => {
+    let s = state.subjects.find(x => norm_(x.name) === norm_(rs.name));
+    if (!s) { s = {id:uid(), name:rs.name, color: rs.color || PALETTE[state.subjects.length % PALETTE.length]}; state.subjects.push(s); n.s++; }
+    mapS[rs.ref] = s.id;
+  });
+  (data.competencias||[]).forEach(rc => {
+    const sid = mapS[rc.subject]; if (!sid) return;
+    let c = state.competencias.find(x => x.subjectId === sid && norm_(x.code) === norm_(rc.code));
+    if (!c) { c = {id:uid(), subjectId:sid, code:rc.code, text:rc.text}; state.competencias.push(c); n.c++; }
+    else if (c.text !== rc.text) { c.text = rc.text; n.u++; }
+    mapC[rc.ref] = c.id;
+  });
+  (data.criterios||[]).forEach(rk => {
+    const cid = mapC[rk.comp]; if (!cid) return;
+    let k = state.criterios.find(x => x.compId === cid && norm_(x.code) === norm_(rk.code) && lvKey(x.levels) === lvKey(rk.levels));
+    if (!k) { k = {id:uid(), compId:cid, code:rk.code, text:rk.text, levels:rk.levels||[]}; state.criterios.push(k); n.k++; }
+    else if (k.text !== rk.text) { k.text = rk.text; n.u++; }
+    mapK[rk.ref] = k.id;
+  });
+  (data.tareas||[]).forEach(rt => {
+    const sid = mapS[rt.subject]; if (!sid) return;
+    const links = {compIds:(rt.comps||[]).map(r=>mapC[r]).filter(Boolean), critIds:(rt.crits||[]).map(r=>mapK[r]).filter(Boolean), levels:rt.levels||[], desc:rt.desc||''};
+    const t = state.tareas.find(x => x.subjectId === sid && norm_(x.name) === norm_(rt.name));
+    if (!t) { state.tareas.push({id:uid(), subjectId:sid, name:rt.name, active:true, ...links}); n.t++; }
+    else { Object.assign(t, links); n.u++; }
+  });
+  saveState();
+  return `Currículo importado: ${n.c} competencias, ${n.k} criterios y ${n.t} tareas nuevas${n.u?`, ${n.u} actualizadas`:''}${n.s?`, ${n.s} materias nuevas`:''}.`;
+}
+async function loadCentro(){
+  try {
+    const r = await fetch('curriculo.json', {cache:'no-store'});
+    if (!r.ok) throw new Error('no publicado');
+    const data = await r.json();
+    if (data.app !== 'RegistrAula' || data.type !== 'curriculo') throw new Error('formato no válido');
+    if (!confirm(`Currículo del centro del ${new Date(data.date).toLocaleDateString('es-ES')}: ${(data.competencias||[]).length} competencias, ${(data.criterios||[]).length} criterios y ${(data.tareas||[]).length} tareas.\nSe añadirá a lo que ya tienes sin borrar nada. ¿Continuar?`)) return;
+    toast(importCurric(data)); rerender();
+  } catch (err) {
+    alert(err.message === 'no publicado'
+      ? 'Todavía no hay un currículo del centro publicado.\n\nEl coordinador debe exportarlo ("Exportar currículo…") y subir el archivo al repositorio de GitHub con el nombre curriculo.json.'
+      : 'No se ha podido cargar el currículo del centro (' + err.message + '). Comprueba la conexión.');
+  }
+}
+function doCSV(){
+  const q = v => { const s = String(v ?? ''); return /[;"\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s; };
+  const head = ['Fecha','Hora','Día','Grupo','Alumno','Materia','Tipo de actividad','Ámbito','Anotación','Valoración','Valor','Mín','Máx','Nota sobre 10','Competencias','Criterios','Observación'];
+  const rows = records.map(r => { const d = new Date(r.ts);
+    const n = norm(r);
+    return [ymd(d), hm(d), DAYS_L[d.getDay()], (byId(state.groups,r.gid)||{}).name, (byId(state.students,r.sid)||{}).name, (byId(state.subjects,r.subj)||{}).name,
+      r.cat, r.area==='A'?'Académico':'Conductual', r.name, r.task?(r.val==null?'No realizada':LEVELS[r.val]):r.mode==='score'?'Puntuación':r.v>0?'Positiva':r.v<0?'Negativa':'Neutra',
+      r.val!=null?String(r.val).replace('.',','):'', r.mode==='score'?r.min:'', r.mode==='score'?r.max:'', n!=null?fmtNum(n):'',
+      (r.comp||[]).map(id=>(byId(state.competencias,id)||{}).code).filter(Boolean).join(' '),
+      (r.crit||[]).map(id=>(byId(state.criterios,id)||{}).code).filter(Boolean).join(' '), r.note].map(q).join(';'); });
+  saveFile(`RegistrAula_registros_${ymd(new Date())}.csv`, new Blob(['﻿' + [head.join(';'), ...rows].join('\r\n')], {type:'text/csv'}));
+}
+
+// ---------- Datos de ejemplo ----------
+function loadDemo(){
+  const names = ['Lucía García','Hugo Martínez','Martina López','Leo Sánchez','Sofía Pérez','Mateo Gómez','Valeria Ruiz','Daniel Díaz','Paula Moreno','Álvaro Muñoz',
+    'Julia Álvarez','Pablo Romero','Emma Navarro','Adrián Torres','Carla Domínguez','Marcos Vázquez','Alba Ramos','Izan Gil','Noa Serrano','Bruno Molina','Vega Blanco','Gael Ortiz'];
+  const g = {id:uid(), name:'1.º A (ejemplo)', demo:true};
+  state.groups.push(g);
+  const studs = names.map(n => ({id:uid(), groupId:g.id, name:n, active:true}));
+  state.students.push(...studs);
+  const S = n => (state.subjects.find(s=>s.name===n) || state.subjects[0]).id;
+  const plan = [
+    ['09:00','09:45',['Lengua Castellana','Matemáticas','Lengua Castellana','Matemáticas','Inglés']],
+    ['09:45','10:30',['Matemáticas','Lengua Castellana','Valencià','Lengua Castellana','Matemáticas']],
+    ['10:30','11:15',['Conocimiento del Medio','Inglés','Matemáticas','Educación Física','Valencià']],
+    ['11:45','12:30',['Valencià','Educación Artística','Conocimiento del Medio','Inglés','Tutoría']],
+    ['15:00','16:30',['Educación Física','Religión / At. Educativa','Educación Artística','Conocimiento del Medio','Lengua Castellana']]
+  ];
+  const demoSched = [];
+  plan.forEach(([a,b,subs]) => subs.forEach((n,i) => demoSched.push({id:uid(), day:i+1, start:a, end:b, groupId:g.id, subjectId:S(n)})));
+  if (!state.schedule.length) state.schedule.push(...demoSched);
+  // Perfiles: algunos con más conducta negativa, uno que mejora, otros "invisibles"
+  const profile = studs.map((s,i) => ({neg: i===1?0.55 : i===5?0.45 : i===12?0.35 : 0.12, improve: i===1, weight: (i===17||i===20)?0.15:1, skill: 0.35 + ((i*37)%60)/100}));
+  const rnd = (() => { let x = 12345; return () => (x = (x*16807) % 2147483647) / 2147483647; })();
+  const pick = arr => arr[Math.floor(rnd()*arr.length)];
+  const neg = state.indicators.filter(i=>i.mode==='count' && i.v<0 && i.subjectId==='*');
+  const pos = state.indicators.filter(i=>i.mode==='count' && i.v>0 && i.subjectId==='*');
+  const recs = []; const today = new Date();
+  for (let back = 35; back >= 0; back--){
+    const day = new Date(today.getFullYear(), today.getMonth(), today.getDate()-back);
+    if (day.getDay() === 0 || day.getDay() === 6) continue;
+    const progress = 1 - back/35;
+    demoSched.filter(s=>s.day===day.getDay()).forEach(sess => {
+      const [h,m] = sess.start.split(':').map(Number);
+      const scoreInds = state.indicators.filter(i=>i.mode==='score' && (i.subjectId==='*'||i.subjectId===sess.subjectId));
+      const n = 3 + Math.floor(rnd()*5);
+      for (let k=0; k<n; k++){
+        let si; do { si = Math.floor(rnd()*studs.length); } while (rnd() > profile[si].weight);
+        const p = profile[si], s = studs[si];
+        const ts = new Date(day.getFullYear(), day.getMonth(), day.getDate(), h, m + 5 + Math.floor(rnd()*35)).getTime();
+        const negP = p.improve ? p.neg * (1.2 - progress) : p.neg;
+        let ind, val = null;
+        const roll = rnd();
+        if (roll < 0.4 && scoreInds.length){ ind = pick(scoreInds);
+          const lvl = Math.min(1, Math.max(0, p.skill + (p.improve?progress*0.3:0) + (rnd()-0.5)*0.35));
+          val = Math.round(ind.min + lvl*(ind.max-ind.min)); }
+        else if (roll < 0.4 + negP*0.6) ind = pick(neg);
+        else ind = pick(pos);
+        if (ts > Date.now()) continue;
+        recs.push({id:uid(), ts, sid:s.id, gid:g.id, subj:sess.subjectId, ind:ind.id, name:ind.name, cat:ind.cat, area:AREA[ind.cat],
+          v: ind.mode==='score'?0:ind.v, mode:ind.mode, val, min:ind.min, max:ind.max,
+          note: rnd() < 0.06 ? pick(['Tras el recreo, muy alterado.','Lo resuelve solo tras una pista.','Se calma con la mesa de la calma.','Explica su estrategia al grupo.','Llega tarde a la sesión.']) : ''});
+      }
+    });
+  }
+  // Currículo, tareas y planes de ejemplo (Matemáticas)
+  const mat = S('Matemáticas');
+  if (!state.competencias.some(c => c.subjectId === mat)){
+    const C = (code, text) => { const c = {id:uid(), subjectId:mat, code, text, demo:true}; state.competencias.push(c); return c; };
+    const K = (c, code, text) => { const k = {id:uid(), compId:c.id, code, text, demo:true}; state.criterios.push(k); return k; };
+    const c1 = C('CE1','(Ejemplo) Resolver situaciones problemáticas de la vida cotidiana.');
+    const k11 = K(c1,'1.1','(Ejemplo) Comprende el enunciado e identifica los datos.'), k12 = K(c1,'1.2','(Ejemplo) Aplica una estrategia de resolución adecuada.');
+    const c2 = C('CE2','(Ejemplo) Utilizar el cálculo y el sentido numérico.');
+    const k21 = K(c2,'2.1','(Ejemplo) Suma y resta con agilidad.'), k22 = K(c2,'2.2','(Ejemplo) Estima resultados y los comprueba.');
+    const c3 = C('CE3','(Ejemplo) Comunicar el proceso seguido.');
+    const k31 = K(c3,'3.1','(Ejemplo) Explica oralmente cómo ha resuelto.');
+    const T = (name, critIds) => { const t = {id:uid(), subjectId:mat, name, desc:'', compIds:[], critIds, active:true, demo:true}; state.tareas.push(t); return t; };
+    const tks = [T('Problemas de sumas', [k11.id,k12.id,k31.id]), T('Cálculo mental en parejas', [k21.id]),
+                 T('Estimación con regletas', [k22.id,k12.id]), T('Explica tu estrategia', [k31.id])];
+    let ti = 0;
+    for (let back = 35; back >= 0; back--){
+      const day = new Date(today.getFullYear(), today.getMonth(), today.getDate()-back);
+      demoSched.filter(x => x.subjectId === mat && x.day === day.getDay()).forEach(sess => {
+        const date = ymd(day), ids = [tks[ti % 4].id, tks[(ti+1) % 4].id]; ti++;
+        state.plan.push({id:uid(), date, gid:g.id, subj:mat, start:sess.start, taskIds:ids, demo:true});
+        if (back === 0) return;   // la sesión de hoy queda pendiente de evaluar
+        const [h,m] = sess.start.split(':').map(Number);
+        ids.forEach(tid => { const t = byId(state.tareas, tid), prog = 1 - back/35;
+          studs.forEach((st, si) => { if (rnd() < 0.15) return;
+            const p = profile[si], lvl = p.skill + (p.improve ? prog*0.35 : prog*0.1) + (rnd()-0.5)*0.4;
+            const val = rnd() < 0.05 ? null : Math.min(4, Math.max(1, Math.round(1 + lvl*3)));
+            recs.push({id:uid(), ts:new Date(day.getFullYear(), day.getMonth(), day.getDate(), h, m+10+Math.floor(rnd()*30)).getTime(), date, sid:st.id, gid:g.id, subj:mat,
+              task:tid, name:t.name, cat:'Evaluación', area:'A', v:0, mode:'score', val, min:1, max:4, nr:val==null, comp:taskComps(t), crit:t.critIds.slice(), note:''});
+          }); });
+      });
+    }
+  }
+  records.push(...recs); records.sort((a,b)=>a.ts-b.ts);
+  putRecords(recs); saveState();
+  ui.cfg.gid = g.id; ui.rep.gid = g.id; ui.hist.gid = g.id; ui.manual = null; ui.last = {gid:g.id, subj:S('Matemáticas')};
+  toast(`Ejemplo cargado: ${studs.length} alumnos y ${recs.length} registros`); render();
+}
+
+// ---------- Arranque ----------
+const VIEWS = {aula:viewAula, plan:viewPlan, historial:viewHistorial, informes:viewInformes, ajustes:viewAjustes};
+(async function init(){
+  try { await loadAll(); }
+  catch (err) { $('#main').innerHTML = `<div class="wrap"><div class="card empty">No se puede acceder al almacenamiento de este navegador (${esc(err.message||err)}).<br>En iPad, abre la app desde Safari normal (no en modo privado).</div></div>`; return; }
+  tickClock(); render();
+  setInterval(() => {
+    tickClock();
+    if (ui.view === 'aula' && !(ui.manual && ui.manual.pinned) && !$('#modal').classList.contains('show') && document.activeElement?.dataset?.i !== 'note' && currentContext().key !== ui.ctxKey) {
+      ui.sel.clear(); ui.pending = null; ui.manual = null; ui.evalMode = 'alumno'; render();
+    }
+  }, 20000);
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+})();
+</script>
+</body>
+</html>
