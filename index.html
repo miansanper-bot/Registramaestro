@@ -30,6 +30,7 @@
     --sel:#f3f2ee; --sel-ink:#121211; --warn-bg:#3a3014; --warn-ink:#f1d58a;
     --shadow:none;
     --l1:#17304f;--l1i:#cde2fb;--l2:#256abf;--l2i:#ffffff;--l3:#5598e7;--l3i:#0b0b0b;--l4:#b7d3f6;--l4i:#0b0b0b;
+    --d1:#e66767;--d1i:#0b0b0b;--d2:#4a2020;--d2i:#f6c9c9;--d3:#383835;--d3i:#f3f2ee;--d4:#17304f;--d4i:#cde2fb;--d5:#3987e5;--d5i:#0b0b0b;
   }
 }
 :root[data-theme="dark"]{
@@ -40,6 +41,7 @@
   --sel:#f3f2ee; --sel-ink:#121211; --warn-bg:#3a3014; --warn-ink:#f1d58a;
   --shadow:none;
   --l1:#17304f;--l1i:#cde2fb;--l2:#256abf;--l2i:#ffffff;--l3:#5598e7;--l3i:#0b0b0b;--l4:#b7d3f6;--l4i:#0b0b0b;
+  --d1:#e66767;--d1i:#0b0b0b;--d2:#4a2020;--d2i:#f6c9c9;--d3:#383835;--d3i:#f3f2ee;--d4:#17304f;--d4i:#cde2fb;--d5:#3987e5;--d5i:#0b0b0b;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%}
@@ -52,6 +54,7 @@ header.top{display:flex;align-items:center;gap:10px;padding:10px 16px;padding-to
   background:var(--surface);border-bottom:1px solid var(--line)}
 header.top .brand{font-weight:700;font-size:18px;letter-spacing:-.01em;white-space:nowrap}
 header.top .brand span{color:var(--primary)}
+@media (max-width:520px){ header.top .clock{display:none} header.top [data-a=syncOpen]{margin-left:auto} }
 header.top .clock{margin-left:auto;color:var(--ink2);font-variant-numeric:tabular-nums;white-space:nowrap}
 main{flex:1;overflow:auto;-webkit-overflow-scrolling:touch}
 nav.tabs{display:flex;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
@@ -193,6 +196,16 @@ label.f > *{font-size:16px;color:var(--ink)}
 .matrix td.lvc{text-align:center;font-weight:700;border-radius:6px;min-width:44px}
 .grade{display:inline-block;min-width:34px;text-align:center;padding:2px 8px;border-radius:8px;font-weight:800;background:var(--surface2)}
 
+/* ---------- PANEL ---------- */
+:root{--d1:#e34948;--d1i:#fff;--d2:#fbdada;--d2i:#8a1f1f;--d3:#f0efec;--d3i:#1b1b1a;--d4:#cde2fb;--d4i:#0d366b;--d5:#2a78d6;--d5i:#fff}
+.hmap td.hm{text-align:center;font-weight:700;border-radius:6px;min-width:46px;font-variant-numeric:tabular-nums;border-bottom:2px solid var(--surface)}
+.hmap th{text-align:center}
+.d1{background:var(--d1)!important;color:var(--d1i)!important} .d2{background:var(--d2)!important;color:var(--d2i)!important}
+.d3{background:var(--d3)!important;color:var(--d3i)!important} .d4{background:var(--d4)!important;color:var(--d4i)!important}
+.d5{background:var(--d5)!important;color:var(--d5i)!important}
+.legend i.d1,.legend i.d2,.legend i.d3,.legend i.d4,.legend i.d5{border:1px solid var(--line)}
+.warnnum{color:var(--neg);font-weight:800}
+
 /* ---------- IMPRESIÓN ---------- */
 .print-only{display:none}
 @media print{
@@ -281,6 +294,7 @@ const ui = {
   view: 'aula', sel: new Set(), manual: null, last: null, pending: null, note: '', lastBatch: [],
   hist: { date: ymd(new Date()), gid: '', sid: '', subj: '' },
   rep: { gid: '', sid: '', subj: '', period: '4sem', from: '', to: '' },
+  pan: { gid: '', subj: '', period: 'trim', tab: 'clase', sid: '', evo: 'glob', cmp: [], size: 4, base: 'glob', groups: null, seed: 1 },
   cfg: { tab: 'grupos', gid: '', indSubj: 'todas' }
 };
 
@@ -463,12 +477,13 @@ const indicatorsFor = subj => state.indicators.filter(i => i.active !== false &&
 const ICONS = {
   aula:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h4M7 13h10M7 17h6"/></svg>',
   plan:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M8 15l2 2 4-4"/></svg>',
+  panel:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>',
   historial:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
   informes:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
   ajustes:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>'
 };
 function renderTabs(){
-  const t = [['aula','Aula'],['plan','Plan'],['historial','Historial'],['informes','Informes'],['ajustes','Ajustes']];
+  const t = [['aula','Aula'],['plan','Plan'],['panel','Panel'],['historial','Historial'],['informes','Informes'],['ajustes','Ajustes']];
   $('#tabs').innerHTML = t.map(([k,l]) => `<button data-a="tab" data-v="${k}" class="${ui.view===k?'on':''}">${ICONS[k]}${l}</button>`).join('');
 }
 function render(){
@@ -496,6 +511,7 @@ function viewAula(){
     <p>Para empezar, crea tu grupo y añade el alumnado. Después, introduce el horario para que la aplicación sepa en qué sesión estás.</p>
     <div class="row" style="justify-content:center">
       <button class="btn pri" data-a="goCfg" data-v="grupos">Crear grupo y alumnado</button>
+      <button class="btn" data-a="syncInWelcome">Recibir datos de otro dispositivo</button>
       <button class="btn" data-a="demo">Probar con datos de ejemplo</button>
     </div></div></div>`;
   const ctx = currentContext();
@@ -1207,6 +1223,328 @@ function miniBalance(p, n, max){
 }
 
 // ===================================================================
+//   VISTA PANEL (cuadro de mando)
+// ===================================================================
+const COND_CATS = ['Conducta','Relación social','Hábitos y autonomía','Tarea','Participación'];
+const toLvl = r => { const n = norm(r); return n == null ? null : 1 + n/10*3; };   // puntuación 0–10 → escala 1–4
+const isAnot = r => !r.task && r.mode !== 'score';                                // anotación (contador / observación)
+const isVal = r => r.task || r.mode === 'score';                                   // valoración académica
+const dClass = v => v == null ? '' : v < 1.75 ? 'd1' : v < 2.25 ? 'd2' : v < 2.75 ? 'd3' : v < 3.25 ? 'd4' : 'd5';
+const dCell = (v, tip='') => v == null ? `<td class="hm muted">–</td>` : `<td class="hm ${dClass(v)}" ${tip?`data-tip="${esc(tip)}"`:''}>${fmtNum(v)}</td>`;
+const median = a => { if (!a.length) return 0; const s = a.slice().sort((x,y)=>x-y); return s[Math.floor(s.length/2)]; };
+
+// Nivel académico (1–4) de un alumno en una materia
+function acadLevel(rs, subj){
+  const tr = rs.filter(r => r.task && r.subj === subj);
+  if (tr.length && compsOf(subj).length){ const a = areaAvg(compLevels(tr), subj); if (a != null) return a; }
+  const vals = latestTaskEvals(tr).filter(r => r.val != null).map(r => r.val);
+  if (vals.length) return mean(vals);
+  const sc = rs.filter(r => !r.task && r.mode === 'score' && r.area === 'A' && r.subj === subj).map(toLvl).filter(x => x != null);
+  return mean(sc);
+}
+function panelData(){
+  const P = ui.pan, studs = studentsOf(P.gid), {from, to} = periodRange(P.period);
+  let recs = records.filter(r => r.gid === P.gid && r.ts >= +from && r.ts < +to);
+  if (P.subj) recs = recs.filter(r => r.subj === P.subj);
+  const subjIds = P.subj ? [P.subj] : state.subjects.map(s => s.id).filter(id => recs.some(r => r.subj === id && isVal(r)));
+  const mid = (+from + +to) / 2;
+  const per = studs.map(s => {
+    const rs = recs.filter(r => r.sid === s.id);
+    const lv = {}; subjIds.forEach(id => lv[id] = acadLevel(rs, id));
+    const glob = mean(Object.values(lv).filter(v => v != null));
+    const L = compLevels(rs.filter(r => r.task));
+    const cond = {}; COND_CATS.forEach(c => { const x = rs.filter(r => isAnot(r) && r.cat === c); cond[c] = {p:x.filter(r=>r.v>0).length, n:x.filter(r=>r.v<0).length}; });
+    const pos = rs.filter(r => isAnot(r) && r.v > 0).length, neg = rs.filter(r => isAnot(r) && r.v < 0).length;
+    const half = f => { const x = rs.filter(f); const p = x.filter(r=>isAnot(r)&&r.v>0).length, n = x.filter(r=>isAnot(r)&&r.v<0).length;
+      const v = x.filter(isVal).map(r => r.task ? r.val : toLvl(r)).filter(v => v != null); return {pct:(p+n)>=3 ? p/(p+n)*100 : null, lvl: v.length >= 2 ? mean(v) : null}; };
+    return {s, rs, lv, glob, comp:L.comp, crit:L.crit, cond, pos, neg,
+      nVal: rs.filter(isVal).length, nAnot: rs.filter(isAnot).length,
+      nr: latestTaskEvals(rs).filter(r => r.val == null).length,
+      a: half(r => r.ts < mid), b: half(r => r.ts >= mid)};
+  });
+  const classLv = {}; subjIds.forEach(id => classLv[id] = mean(per.map(p => p.lv[id]).filter(v => v != null)));
+  return {studs, recs, per, subjIds, classLv, from, to,
+    classGlob: mean(per.map(p => p.glob).filter(v => v != null)),
+    medVal: median(per.map(p => p.nVal)), medAnot: median(per.map(p => p.nAnot))};
+}
+function viewPanel(){
+  if (!state.groups.length) return `<div class="wrap"><div class="card empty">Aún no hay grupos ni datos.</div></div>`;
+  const P = ui.pan;
+  if (!P.gid || !byId(state.groups, P.gid)) P.gid = currentContext().gid || state.groups[0].id;
+  const pers = [['semana','Esta semana'],['4sem','Últimas 4 semanas'],['trim','Este trimestre'],['curso','Este curso'],['todo','Todo']];
+  const tabs = [['clase','Clase'],['alumno','Alumno'],['comparar','Comparar'],['grupos','Grupos heterogéneos']];
+  let h = `<div class="wrap"><div class="filters noprint">
+    <label class="f">Grupo<select data-c="panG">${selectOptions(state.groups, P.gid)}</select></label>
+    <label class="f">Materia<select data-c="panM">${selectOptions(state.subjects, P.subj, '<option value="">Todas</option>')}</select></label>
+    <label class="f">Periodo<select data-c="panP">${pers.map(([k,l])=>`<option value="${k}" ${P.period===k?'selected':''}>${l}</option>`).join('')}</select></label>
+    <button class="btn" data-a="print">Imprimir / PDF</button></div>
+    <div class="subtabs noprint">${tabs.map(([k,l]) => `<button data-a="panTab" data-v="${k}" class="${P.tab===k?'on':''}">${l}</button>`).join('')}</div>`;
+  const D = panelData();
+  if (!D.recs.length) return h + `<div class="card empty">No hay registros de este grupo en el periodo.</div></div>`;
+  h += ({clase:panelClase, alumno:panelAlumno, comparar:panelComparar, grupos:panelGrupos})[P.tab](D);
+  return h + `</div>`;
+}
+const fname = p => esc(splitName(p.s.name).first + (splitName(p.s.name).rest ? ' ' + splitName(p.s.name).rest[0] + '.' : ''));
+const sName = id => esc((byId(state.subjects, id) || {name:'?'}).name);
+
+function panelClase(D){
+  const cut0 = state.prefs.cuts[0], cut1 = state.prefs.cuts[1];
+  const P = ui.pan, subjMode = !!P.subj;
+  // ---- Dificultades
+  const diff = D.per.map(p => {
+    const items = [];
+    D.subjIds.forEach(id => { const v = p.lv[id]; if (v != null && v < cut1) items.push({t:sName(id), v}); });
+    if (subjMode){
+      compsOf(P.subj).forEach(c => { const x = p.comp[c.id]; if (x && x.avg < cut1) items.push({t:esc(c.code), v:x.avg}); });
+      Object.entries(p.crit).forEach(([id,x]) => { const k = byId(state.criterios, id); if (k && x.avg < cut1) items.push({t:esc(k.code), v:x.avg, k:true}); });
+    }
+    const worst = items.length ? Math.min(...items.map(i => i.v)) : null;
+    return {p, items: items.sort((a,b)=>a.v-b.v), worst};
+  }).filter(x => x.items.length).sort((a,b) => a.worst - b.worst);
+  const hard = diff.filter(x => x.worst < cut0), watch = diff.filter(x => x.worst >= cut0);
+  const diffRow = x => `<div class="it" data-a="panStu" data-id="${x.p.s.id}" style="cursor:pointer"><b style="min-width:110px">${fname(x.p)}</b><span style="flex:1">` +
+      x.items.slice(0,5).map(i => `<span class="chip ${dClass(i.v)}" style="margin:0 3px 3px 0">${i.t} ${fmtNum(i.v)}</span>`).join('') + (x.items.length>5?`<span class="muted small">+${x.items.length-5}</span>`:'') + `</span></div>`;
+  // ---- Pocas evidencias
+  const few = D.per.filter(p => (D.medVal >= 4 && p.nVal < D.medVal*0.5) || (D.medAnot >= 4 && p.nAnot < D.medAnot*0.5))
+    .sort((a,b) => (a.nVal + a.nAnot) - (b.nVal + b.nAnot));
+  // ---- Conducta negativa
+  const negTop = D.per.filter(p => p.neg > 0).sort((a,b) => b.neg - a.neg).slice(0, 6);
+  const worse = D.per.filter(p => p.a.pct != null && p.b.pct != null && p.b.pct - p.a.pct <= -15);
+  const better = D.per.filter(p => (p.a.pct != null && p.b.pct != null && p.b.pct - p.a.pct >= 15) || (p.a.lvl != null && p.b.lvl != null && p.b.lvl - p.a.lvl >= 0.4));
+  const nrTop = D.per.filter(p => p.nr >= 2).sort((a,b) => b.nr - a.nr).slice(0, 6);
+  const totP = D.per.reduce((s,p)=>s+p.pos,0), totN = D.per.reduce((s,p)=>s+p.neg,0);
+  const g = gradeFor(D.classGlob);
+  let h = `<div class="kpis">
+    ${kpi('Nivel medio de la clase', D.classGlob!=null?fmtNum(D.classGlob,2):'–', D.classGlob!=null?`escala 1–4 · sugerida ${g}`:'sin valoraciones')}
+    ${kpi('Con dificultades', hard.length, `+ ${watch.length} a vigilar · de ${D.per.length}`)}
+    ${kpi('Conductas positivas', (totP+totN)?fmtNum(totP/(totP+totN)*100,0)+' %':'–', `${totP} positivas · ${totN} negativas`)}
+    ${kpi('Pocas evidencias', few.length, `mediana: ${D.medVal} valoraciones · ${D.medAnot} anotaciones`)}
+  </div>`;
+  h += `<div class="charts">
+    <div class="card"><h4 style="margin:0 0 2px">⚠︎ Dificultades${subjMode?' · '+sName(P.subj):''}</h4>
+      <div class="sub muted small" style="margin-bottom:6px">Por debajo de ${fmtNum(cut0)} (dificultad) o ${fmtNum(cut1)} (vigilar) · ${subjMode?'materia, competencias y criterios':'por materia; elige una materia para ver competencias y criterios'}</div>
+      <div class="list">${hard.length ? hard.map(diffRow).join('') : '<p class="muted">Nadie por debajo del primer corte.</p>'}</div>
+      ${watch.length ? `<details><summary class="small ink2" style="cursor:pointer;margin-top:6px">A vigilar (${watch.length})</summary><div class="list">${watch.map(diffRow).join('')}</div></details>` : ''}</div>
+    <div class="card"><h4 style="margin:0 0 2px">👁 Pocas evidencias</h4>
+      <div class="sub muted small" style="margin-bottom:6px">Menos de la mitad de la mediana de la clase: quizá no les estás observando lo suficiente</div>
+      <div class="list">${few.length ? few.map(p => `<div class="it" data-a="panStu" data-id="${p.s.id}" style="cursor:pointer"><b style="flex:1">${fname(p)}</b>
+        <span class="small ${p.nVal < D.medVal*0.5 ? '' : 'muted'}">${p.nVal} valoraciones</span><span class="small ${p.nAnot < D.medAnot*0.5 ? '' : 'muted'}">· ${p.nAnot} anotaciones</span></div>`).join('') : '<p class="muted">Todo el alumnado tiene un número de registros equilibrado. 👍</p>'}</div></div>
+    <div class="card"><h4 style="margin:0 0 2px">Más anotaciones negativas</h4>
+      <div class="sub muted small" style="margin-bottom:6px">Desglose por tipo: Conducta · Social · Hábitos/autonomía · Tarea · Participación</div>
+      <div class="list">${negTop.length ? negTop.map(p => `<div class="it" data-a="panStu" data-id="${p.s.id}" style="cursor:pointer"><b style="min-width:110px">${fname(p)}</b><span style="flex:1">` +
+        COND_CATS.filter(c => p.cond[c].n).map(c => `<span class="chip n" style="margin:0 3px 3px 0">${esc(c.split(' ')[0])} ${p.cond[c].n}</span>`).join('') + `</span><b class="small">−${p.neg}</b></div>`).join('') : '<p class="muted">No hay anotaciones negativas.</p>'}</div>
+      ${worse.length ? `<p class="small" style="margin-bottom:0">📉 <b>Empeoran</b> en conducta: ${worse.map(p=>`<a data-a="panStu" data-id="${p.s.id}" style="cursor:pointer;text-decoration:underline">${fname(p)}</a>`).join(', ')}</p>` : ''}</div>
+    <div class="card"><h4 style="margin:0 0 2px">Evolución destacada y tareas no realizadas</h4>
+      <div class="sub muted small" style="margin-bottom:6px">Comparando la primera y la segunda mitad del periodo</div>
+      <p class="small">📈 <b>Mejoran:</b> ${better.length ? better.map(p=>`<a data-a="panStu" data-id="${p.s.id}" style="cursor:pointer;text-decoration:underline">${fname(p)}</a>`).join(', ') : '<span class="muted">nadie destaca todavía</span>'}</p>
+      <p class="small" style="margin-bottom:0">⌀ <b>Varias tareas no realizadas:</b> ${nrTop.length ? nrTop.map(p=>`<a data-a="panStu" data-id="${p.s.id}" style="cursor:pointer;text-decoration:underline">${fname(p)}</a> (${p.nr})`).join(', ') : '<span class="muted">nadie</span>'}</p></div>
+  </div>`;
+  // ---- Criterios más difíciles para el grupo
+  if (subjMode){
+    const ks = {}; D.per.forEach(p => Object.entries(p.crit).forEach(([id,x]) => (ks[id] || (ks[id]=[])).push(x.avg)));
+    const low = Object.entries(ks).map(([id,a]) => ({k:byId(state.criterios,id), v:mean(a), n:a.length})).filter(x => x.k).sort((a,b)=>a.v-b.v).slice(0,5);
+    if (low.length) h += `<div class="card" style="margin-bottom:14px"><h4 style="margin:0 0 2px">Criterios que más cuestan al grupo</h4><div class="sub muted small" style="margin-bottom:6px">Media de la clase, de menor a mayor: candidatos a refuerzo para todos</div>
+      <div class="list">${low.map(x => `<div class="it"><span class="chip ${dClass(x.v)}">${fmtNum(x.v)}</span><span style="flex:1"><b>${esc(x.k.code)}</b> <span class="small">${esc(x.k.text)}</span></span><span class="muted small">${x.n} alumnos</span></div>`).join('')}</div></div>`;
+  }
+  // ---- Mapa de la clase
+  const cols = subjMode ? compsOf(P.subj).map(c => ({k:'c', id:c.id, lbl:c.code, tip:c.text})) : D.subjIds.map(id => ({k:'s', id, lbl:sName(id), tip:''}));
+  const maxN = Math.max(1, ...D.per.flatMap(p => COND_CATS.map(c => p.cond[c].n)));
+  h += `<div class="card"><h4 style="margin:0 0 2px">Mapa de la clase</h4>
+    <div class="sub muted small" style="margin-bottom:8px">Nivel (1–4) por ${subjMode?'competencia':'materia'}, anotaciones negativas por tipo y número de registros. Toca un alumno para ver su ficha.</div>
+    <div style="overflow:auto"><table class="tbl hmap"><thead><tr><th>Alumno</th>${cols.map(c => `<th title="${esc(c.tip)}">${c.lbl}</th>`).join('')}<th>Global</th>
+      ${COND_CATS.map(c => `<th title="Negativas: ${esc(c)}">− ${esc(c.split(' ')[0].slice(0,8))}</th>`).join('')}<th class="num">Valor.</th><th class="num">Anot.</th></tr></thead><tbody>` +
+    D.per.slice().sort((a,b) => (a.glob ?? 9) - (b.glob ?? 9)).map(p => `<tr class="click" data-a="panStu" data-id="${p.s.id}"><td><b>${esc(p.s.name)}</b></td>` +
+      cols.map(c => c.k === 's' ? dCell(p.lv[c.id]) : dCell(p.comp[c.id] && p.comp[c.id].avg)).join('') + dCell(p.glob) +
+      COND_CATS.map(c => { const n = p.cond[c].n; return `<td class="hm" style="${n?`background:rgba(227,73,72,${(0.15+0.85*n/maxN).toFixed(2)});color:${n/maxN>0.5?'#fff':'inherit'}`:''}">${n||''}</td>`; }).join('') +
+      `<td class="num ${D.medVal>=4 && p.nVal<D.medVal*0.5?'warnnum':''}">${p.nVal}</td><td class="num ${D.medAnot>=4 && p.nAnot<D.medAnot*0.5?'warnnum':''}">${p.nAnot}</td></tr>`).join('') +
+    `<tr><td class="muted">Media de la clase</td>${cols.map(c => c.k==='s' ? dCell(D.classLv[c.id]) : dCell(mean(D.per.map(p=>p.comp[c.id]&&p.comp[c.id].avg).filter(v=>v!=null)))).join('')}${dCell(D.classGlob)}
+      ${COND_CATS.map(c => `<td class="hm muted">${fmtNum(mean(D.per.map(p=>p.cond[c].n)))}</td>`).join('')}<td class="num muted">${D.medVal}</td><td class="num muted">${D.medAnot}</td></tr></tbody></table></div>
+    ${dLegend()}</div>`;
+  return h;
+}
+const dLegend = () => `<div class="legend"><span><i class="d1"></i>&lt; 1,75</span><span><i class="d2"></i>1,75–2,25</span><span><i class="d3"></i>2,25–2,75</span><span><i class="d4"></i>2,75–3,25</span><span><i class="d5"></i>≥ 3,25</span><span><i style="background:rgba(227,73,72,.6)"></i>anotaciones negativas</span></div>`;
+
+// ---------- Ficha de alumno ----------
+function panelAlumno(D){
+  const P = ui.pan;
+  if (!P.sid || !D.per.some(p => p.s.id === P.sid)) P.sid = D.per[0] && D.per[0].s.id;
+  const p = D.per.find(x => x.s.id === P.sid); if (!p) return '';
+  const avg = f => mean(D.per.map(f).filter(v => v != null));
+  let h = `<div class="row noprint" style="margin-bottom:10px"><label class="f">Alumno<select data-c="panS">${D.per.map(x => `<option value="${x.s.id}" ${x.s.id===P.sid?'selected':''}>${esc(x.s.name)}</option>`).join('')}</select></label>
+    <button class="btn sm" data-a="panOpenRep" style="align-self:flex-end">Informe completo ›</button></div>
+    <h2 class="print-only">${esc(p.s.name)}</h2>`;
+  const pct = (p.pos+p.neg) ? p.pos/(p.pos+p.neg)*100 : null, cpct = avg(x => (x.pos+x.neg) ? x.pos/(x.pos+x.neg)*100 : null);
+  h += `<div class="kpis">
+    ${kpi('Nivel global', p.glob!=null?fmtNum(p.glob,2):'–', `media de la clase ${D.classGlob!=null?fmtNum(D.classGlob,2):'–'}${p.glob!=null?' · sugerida '+gradeFor(p.glob):''}`)}
+    ${kpi('Conductas positivas', pct!=null?fmtNum(pct,0)+' %':'–', `clase ${cpct!=null?fmtNum(cpct,0)+' %':'–'} · +${p.pos} / −${p.neg}`)}
+    ${kpi('Valoraciones', p.nVal, `mediana de la clase ${D.medVal}`)}
+    ${kpi('Anotaciones', p.nAnot, `mediana de la clase ${D.medAnot}${p.nr?` · ${p.nr} no realizadas`:''}`)}
+  </div>`;
+  // Comparativa con la media
+  const rows = [];
+  D.subjIds.forEach(id => rows.push({g:'Materias', lbl:sName(id), v:p.lv[id], c:D.classLv[id], lvl:true}));
+  if (P.subj) {
+    compsOf(P.subj).forEach(c => rows.push({g:'Competencias', lbl:`${esc(c.code)} <span class="muted small">${esc(c.text.slice(0,60))}${c.text.length>60?'…':''}</span>`, v:p.comp[c.id]&&p.comp[c.id].avg, c:avg(x=>x.comp[c.id]&&x.comp[c.id].avg), lvl:true}));
+    compsOf(P.subj).forEach(c => critsOf(c.id).forEach(k => { if (p.crit[k.id]) rows.push({g:'Criterios', lbl:`${esc(k.code)} <span class="muted small">${esc(k.text.slice(0,60))}${k.text.length>60?'…':''}</span>`, v:p.crit[k.id].avg, c:avg(x=>x.crit[k.id]&&x.crit[k.id].avg), lvl:true}); }));
+  }
+  COND_CATS.forEach(c => rows.push({g:'Anotaciones negativas (menos es mejor)', lbl:esc(c), v:p.cond[c].n, c:avg(x=>x.cond[c].n), lvl:false}));
+  let lastG = '';
+  h += `<div class="card" style="margin-bottom:14px"><h4 style="margin:0 0 6px">Comparado con la media de la clase</h4><div style="overflow:auto"><table class="tbl"><thead><tr><th></th><th class="num">Alumno</th><th class="num">Clase</th><th>Diferencia</th></tr></thead><tbody>` +
+    rows.map(r => { let x = '';
+      if (r.g !== lastG) { x += `<tr><td colspan="4" class="catlbl" style="padding-top:12px">${r.g}</td></tr>`; lastG = r.g; }
+      const d = (r.v != null && r.c != null) ? r.v - r.c : null;
+      const good = d == null ? null : (r.lvl ? d >= 0 : d <= 0);
+      const scale = r.lvl ? 1.5 : Math.max(2, ...D.per.map(q => Math.max(...COND_CATS.map(c=>q.cond[c].n))));
+      return x + `<tr><td>${r.lbl}</td>${r.lvl ? dCell(r.v) : `<td class="num">${r.v}</td>`}<td class="num muted">${r.c!=null?fmtNum(r.c):'–'}</td><td>${diffBar(d, scale, good)}</td></tr>`; }).join('') + `</tbody></table></div></div>`;
+  // Evolución
+  h += evoPanel(D, p);
+  return h;
+}
+function diffBar(d, scale, good){
+  if (d == null) return '<span class="muted">–</span>';
+  const W = 160, mid = 80, w = Math.min(mid-2, Math.abs(d)/scale*(mid-2));
+  const x = d >= 0 ? mid : mid - w;
+  return `<svg viewBox="0 0 ${W} 14" width="${W}" height="14" style="vertical-align:middle"><rect x="${x}" y="2" width="${Math.max(1,w)}" height="10" rx="2" fill="${good?'var(--pos)':'var(--neg)'}"/>
+    <line x1="${mid}" x2="${mid}" y1="0" y2="14" stroke="var(--muted)"/></svg> <span class="small">${d>0?'+':''}${fmtNum(d)}</span>`;
+}
+// Evolución del alumno frente a la clase, totalizando por lo que elijas
+function evoPanel(D, p){
+  const P = ui.pan, opts = [['glob','Nivel académico global']];
+  D.subjIds.forEach(id => opts.push(['s:'+id, 'Materia · ' + (byId(state.subjects,id)||{}).name]));
+  const subjs = P.subj ? [P.subj] : D.subjIds;
+  subjs.forEach(sid => compsOf(sid).forEach(c => { if (p.rs.some(r => (r.comp||[]).includes(c.id))) opts.push(['c:'+c.id, `Competencia · ${(byId(state.subjects,sid)||{}).name} ${c.code}`]); }));
+  subjs.forEach(sid => compsOf(sid).forEach(c => critsOf(c.id).forEach(k => { if (p.rs.some(r => (r.crit||[]).includes(k.id))) opts.push(['k:'+k.id, `Criterio · ${k.code} ${k.text.slice(0,50)}`]); })));
+  opts.push(['b:*','Conducta · todas las anotaciones']); COND_CATS.forEach(c => opts.push(['b:'+c, 'Conducta · ' + c]));
+  if (!opts.some(o => o[0] === P.evo)) P.evo = 'glob';
+  const [kind, id] = P.evo.includes(':') ? P.evo.split(/:(.*)/s) : [P.evo, ''];
+  const weeks = weeksBetween(D.from, D.to);
+  let body;
+  if (kind === 'b'){
+    const f = r => isAnot(r) && (id === '*' || r.cat === id);
+    body = divergingWeeks(weeks, p.rs.filter(f));
+  } else {
+    const f = kind === 'glob' ? isVal : kind === 's' ? (r => isVal(r) && r.subj === id) : kind === 'c' ? (r => r.task && (r.comp||[]).includes(id)) : (r => r.task && (r.crit||[]).includes(id));
+    const wk = rs => weeks.map(w => { const e = +w + 7*864e5; const v = rs.filter(r => r.ts >= +w && r.ts < e && f(r)).map(r => r.task ? r.val : toLvl(r)).filter(v => v != null); return v.length ? mean(v) : null; });
+    body = twoLines(weeks, wk(p.rs), wk(D.recs));
+  }
+  return `<div class="card chart"><div class="row" style="justify-content:space-between;align-items:flex-start"><div><h4>Evolución</h4>
+      <div class="sub">${kind==='b'?'Anotaciones positivas (arriba) y negativas (abajo) por semana':'Nivel medio semanal (1–4): alumno frente a la media de la clase'}</div></div>
+      <select data-c="panEvo" class="noprint" style="max-width:420px">${opts.map(([k,l]) => `<option value="${k}" ${k===P.evo?'selected':''}>${esc(l)}</option>`).join('')}</select></div>${body}</div>`;
+}
+function twoLines(weeks, a, b){
+  if (!a.some(v => v != null)) return `<p class="muted">Sin valoraciones de este alumno para lo elegido en el periodo.</p>`;
+  const W = 620, H = 220, L = 30, R = 16, T = 14, B = 30, iw = W-L-R, ih = H-T-B, n = weeks.length;
+  const X = i => n === 1 ? L + iw/2 : L + i*iw/(n-1), Y = v => T + ih - (v-1)/3*ih;
+  const every = Math.ceil(n/10);
+  let g = '';
+  [1,2,3,4].forEach(v => g += `<line class="axis" x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L-8}" y="${Y(v)+4}" text-anchor="end">${v}</text>`);
+  const path = arr => { let d = '', on = false; arr.forEach((v,i) => { if (v == null) { on = false; return; } d += `${on?'L':'M'}${X(i)},${Y(v)} `; on = true; }); return d; };
+  g += `<path d="${path(b)}" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="5 4"/>`;
+  g += `<path d="${path(a)}" fill="none" stroke="var(--pos)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  weeks.forEach((w,i) => { const lbl = `${w.getDate()}/${w.getMonth()+1}`;
+    if (a[i] != null) g += `<circle cx="${X(i)}" cy="${Y(a[i])}" r="4.5" fill="var(--pos)" stroke="var(--surface)" stroke-width="2"/>`;
+    g += `<rect x="${X(i)-12}" y="${T}" width="24" height="${ih}" fill="transparent" data-tip="Semana del ${lbl}: alumno ${a[i]!=null?fmtNum(a[i]):'–'} · clase ${b[i]!=null?fmtNum(b[i]):'–'}"/>`;
+    if (i % every === 0) g += `<text x="${X(i)}" y="${H-10}" text-anchor="middle">${lbl}</text>`; });
+  return `<svg viewBox="0 0 ${W} ${H}" role="img">${g}</svg><div class="legend"><span><i style="background:var(--pos)"></i>Alumno</span><span><i style="background:var(--muted)"></i>Media de la clase (discontinua)</span></div>`;
+}
+
+// ---------- Comparar varios alumnos ----------
+function panelComparar(D){
+  const P = ui.pan; P.cmp = (P.cmp || []).filter(id => D.per.some(p => p.s.id === id));
+  let h = `<div class="card" style="margin-bottom:14px"><h4 style="margin:0 0 6px">Elige de 2 a 6 alumnos</h4><div class="row">` +
+    D.per.map(p => `<button class="btn sm ${P.cmp.includes(p.s.id)?'pri':''}" data-a="cmpToggle" data-id="${p.s.id}">${fname(p)}</button>`).join('') +
+    `</div>${P.cmp.length ? '<div style="margin-top:8px"><button class="btn sm ghost" data-a="cmpClear">Quitar todos</button></div>' : ''}</div>`;
+  const sel = P.cmp.map(id => D.per.find(p => p.s.id === id));
+  if (sel.length < 2) return h + `<div class="card empty">Selecciona al menos dos alumnos para compararlos.</div>`;
+  const avg = f => mean(D.per.map(f).filter(v => v != null));
+  const rows = [['Nivel global', p => p.glob, D.classGlob, 'lvl']];
+  D.subjIds.forEach(id => rows.push([sName(id), p => p.lv[id], D.classLv[id], 'lvl']));
+  if (P.subj) compsOf(P.subj).forEach(c => rows.push([esc(c.code), p => p.comp[c.id] && p.comp[c.id].avg, avg(x => x.comp[c.id] && x.comp[c.id].avg), 'lvl']));
+  rows.push(['% conductas positivas', p => (p.pos+p.neg) ? p.pos/(p.pos+p.neg)*100 : null, avg(x => (x.pos+x.neg) ? x.pos/(x.pos+x.neg)*100 : null), 'pct']);
+  COND_CATS.forEach(c => rows.push(['− ' + esc(c), p => p.cond[c].n, avg(x => x.cond[c].n), 'neg']));
+  rows.push(['Valoraciones', p => p.nVal, D.medVal, 'n'], ['Anotaciones', p => p.nAnot, D.medAnot, 'n'], ['Tareas no realizadas', p => p.nr, avg(x => x.nr), 'neg']);
+  h += `<div class="card"><div style="overflow:auto"><table class="tbl hmap"><thead><tr><th></th>${sel.map(p => `<th style="text-align:center">${fname(p)}</th>`).join('')}<th style="text-align:center">Clase</th></tr></thead><tbody>` +
+    rows.map(([lbl, f, cl, t]) => `<tr><td>${lbl}</td>` + sel.map(p => { const v = f(p);
+      if (t === 'lvl') return dCell(v);
+      if (t === 'pct') return `<td class="hm">${v!=null?fmtNum(v,0)+' %':'–'}</td>`;
+      if (t === 'neg') return `<td class="hm" style="${v&&cl!=null&&v>cl*1.5?'color:var(--neg);font-weight:800':''}">${v ?? '–'}</td>`;
+      return `<td class="hm">${v}</td>`; }).join('') +
+      `<td class="hm muted">${cl==null?'–':t==='pct'?fmtNum(cl,0)+' %':t==='n'?cl:fmtNum(cl)}</td></tr>`).join('') + `</tbody></table></div>${dLegend()}
+    <p class="muted small">En rojo, anotaciones negativas que superan en un 50 % la media de la clase.</p></div>`;
+  return h;
+}
+
+// ---------- Grupos heterogéneos ----------
+function panelGrupos(D){
+  const P = ui.pan;
+  let h = `<div class="card" style="margin-bottom:14px"><div class="row" style="align-items:flex-end">
+      <label class="f">Alumnos por grupo<select data-c="grpSize">${[3,4,5,6].map(n => `<option ${P.size===n?'selected':''}>${n}</option>`).join('')}</select></label>
+      <label class="f">Equilibrar por<select data-c="grpBase"><option value="glob" ${P.base==='glob'?'selected':''}>Nivel global</option>${D.subjIds.map(id => `<option value="${id}" ${P.base===id?'selected':''}>Nivel en ${sName(id)}</option>`).join('')}</select></label>
+      <span class="small ink2" style="align-self:center">${groupSizesText(D.per.length, P.size)}</span>
+      <button class="btn pri" data-a="grpMake">${P.groups ? 'Generar otra propuesta' : 'Generar grupos'}</button>
+      ${P.groups ? '<button class="btn" data-a="grpCopy">Copiar</button>' : ''}</div>
+    <p class="ink2 small" style="margin-bottom:0">Reparte a la clase en grupos heterogéneos: cada grupo mezcla alumnado de nivel alto, medio y bajo, con medias parecidas entre grupos, y evita juntar a dos alumnos con muchas anotaciones negativas. Es una propuesta: ajústala con lo que tú sabes de la clase (afinidades, incompatibilidades, necesidades).</p></div>`;
+  // Perfil de todo el alumnado
+  const prof = groupProfiles(D);
+  h += `<div class="card" style="margin-bottom:14px"><h4 style="margin:0 0 6px">Perfil de la clase (${prof.length})</h4><div style="overflow:auto"><table class="tbl hmap"><thead><tr><th>Alumno</th><th>Nivel</th><th>Tramo</th><th class="num">Negativas</th><th>Perfil conducta</th></tr></thead><tbody>` +
+    prof.slice().sort((a,b) => b.a - a.a).map(x => `<tr><td><b>${esc(x.p.s.name)}</b></td>${dCell(x.lvRaw)}<td><span class="chip ${x.tier==='Alto'?'p':x.tier==='Bajo'?'n':'z'}">${x.tier}</span></td>
+      <td class="num">${x.p.neg}</td><td>${x.flag ? '<span class="chip n">⚠︎ Muchas negativas</span>' : ''}</td></tr>`).join('') + `</tbody></table></div></div>`;
+  if (P.groups){
+    const byId_ = new Map(prof.map(x => [x.p.s.id, x]));
+    const gs = P.groups.map(ids => ids.map(id => byId_.get(id)).filter(Boolean)).filter(g => g.length);
+    h += `<div class="charts">` + gs.map((g, i) => { const m = mean(g.map(x => x.a));
+      return `<div class="card"><div class="row" style="justify-content:space-between"><h4 style="margin:0">Grupo ${i+1}</h4><span class="small">media <b>${fmtNum(m,2)}</b></span></div><div class="list">` +
+        g.slice().sort((a,b)=>b.a-a.a).map(x => `<div class="it"><span class="chip ${x.tier==='Alto'?'p':x.tier==='Bajo'?'n':'z'}" style="min-width:58px;text-align:center">${x.tier}</span><b style="flex:1">${esc(x.p.s.name)}</b>${x.flag?'<span class="chip n">⚠︎</span>':''}<span class="small muted">${x.lvRaw!=null?fmtNum(x.lvRaw):'s/d'}</span></div>`).join('') +
+        `</div></div>`; }).join('') + `</div>`;
+  }
+  return h;
+}
+function groupProfiles(D){
+  const P = ui.pan;
+  const raw = D.per.map(p => ({p, lvRaw: P.base === 'glob' ? p.glob : p.lv[P.base]}));
+  const known = raw.filter(x => x.lvRaw != null).map(x => x.lvRaw), cm = mean(known) ?? 2.5;
+  const sorted = raw.map(x => x.lvRaw ?? cm).sort((a,b)=>a-b);
+  const t1 = sorted[Math.floor(sorted.length/3)], t2 = sorted[Math.floor(sorted.length*2/3)];
+  const negs = D.per.map(p => p.neg).sort((a,b)=>b-a), flagCut = Math.max(2, negs[Math.floor(negs.length*0.2)] || 0);
+  return raw.map(x => { const a = x.lvRaw ?? cm; return {...x, a, tier: a >= t2 ? 'Alto' : a < t1 ? 'Bajo' : 'Medio', flag: x.p.neg >= flagCut}; });
+}
+// Nº de grupos: preferimos grupos de "size" o "size+1"; si saldrían mayores, grupos de "size-1" o "size"
+function groupCount(n, size){
+  let k = Math.max(1, Math.floor(n / size));
+  if (Math.ceil(n / k) > size + 1) k = Math.ceil(n / size);
+  return k;
+}
+function groupSizesText(n, size){
+  const k = groupCount(n, size), base = Math.floor(n / k), extra = n % k;
+  return `${k} grupos: ` + (extra ? `${extra} de ${base+1} y ${k-extra} de ${base}` : `${k} de ${base}`);
+}
+function makeGroups(D){
+  const P = ui.pan, prof = groupProfiles(D), n = prof.length;
+  const k = groupCount(n, P.size);
+  // Reparto en serpiente por nivel
+  const ord = prof.slice().sort((a,b) => b.a - a.a);
+  const G = Array.from({length:k}, () => []);
+  ord.forEach((x, i) => { const r = Math.floor(i / k), c = i % k; G[r % 2 ? k-1-c : c].push(x); });
+  let seed = (P.seed = (P.seed || 1) + 7919);
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const cm = mean(prof.map(x => x.a));
+  const cost = gs => gs.reduce((s, g) => { const m = mean(g.map(x=>x.a)), fl = g.filter(x=>x.flag).length;
+    const tiers = new Set(g.map(x=>x.tier)).size;
+    return s + (m - cm)**2 * 12 + Math.max(0, fl-1) * 25 + (3 - tiers) * 2; }, 0);
+  // Mejora por intercambios: acepta mejoras (y alguna vez un empeoramiento para no atascarse) y guarda la mejor solución
+  let cur = cost(G), best = cur, bestG = G.map(g => g.slice());
+  for (let it = 0; it < 6000; it++){
+    const a = Math.floor(rnd()*k), b = Math.floor(rnd()*k); if (a === b) continue;
+    const i = Math.floor(rnd()*G[a].length), j = Math.floor(rnd()*G[b].length);
+    [G[a][i], G[b][j]] = [G[b][j], G[a][i]];
+    const c = cost(G);
+    if (c <= cur || rnd() < 0.01) { cur = c; if (c < best) { best = c; bestG = G.map(g => g.slice()); } }
+    else [G[a][i], G[b][j]] = [G[b][j], G[a][i]];
+  }
+  P.groups = bestG.map(g => g.map(x => x.p.s.id));
+}
+
+// ===================================================================
 //   VISTA AJUSTES
 // ===================================================================
 function viewAjustes(){
@@ -1241,7 +1579,9 @@ function cfgGrupos(){
   return h;
 }
 function cfgMaterias(){
-  return `<div class="card list">` + state.subjects.map(s => `<div class="it">
+  const names = state.subjects.map(s => s.name.trim().toLowerCase()), dup = names.some((n,i) => names.indexOf(n) !== i);
+  return (dup ? `<div class="banner"><span><b>Hay materias repetidas</b> (mismo nombre). Fusiónalas: se juntan su currículo, tareas, horario y registros en una sola.</span><button class="btn sm pri" data-a="dedupe">Fusionar repetidas</button></div>` : '') +
+    `<div class="card list">` + state.subjects.map(s => `<div class="it">
       <input type="color" data-c="subjColor" data-id="${s.id}" value="${s.color}" style="width:44px;height:40px;border:0;background:none;padding:0">
       <input type="text" data-c="subjName" data-id="${s.id}" value="${esc(s.name)}" style="flex:1">
       <button class="btn sm danger" data-a="delSubj" data-id="${s.id}" aria-label="Borrar">✕</button></div>`).join('') +
@@ -1609,8 +1949,13 @@ const A = {
     state.subjects.push({id:uid(), name:n, color:PALETTE[state.subjects.length % PALETTE.length]}); saveState(); rerender(); },
   delSubj: t => {
     const id = t.dataset.id, s = byId(state.subjects, id);
+    if (state.subjects.some(x => x.id !== id && x.name.trim().toLowerCase() === s.name.trim().toLowerCase())) {
+      if (confirm(`Hay otra materia llamada "${s.name}". En vez de borrarla, ¿la fusiono con la otra? Así no se pierde su horario, currículo ni registros.`)) { A.dedupe(); }
+      return;
+    }
+    const nSes = state.schedule.filter(x=>x.subjectId===id).length;
     if (records.some(r=>r.subj===id)) { alert(`"${s.name}" tiene registros y no se puede eliminar. Puedes cambiarle el nombre.`); return; }
-    if (!confirm(`¿Eliminar "${s.name}", sus anotaciones específicas y sus sesiones del horario?`)) return;
+    if (!confirm(`¿Eliminar "${s.name}", sus anotaciones específicas${nSes?` y sus ${nSes} sesiones del horario`:''}? No se puede deshacer.`)) return;
     const comps = state.competencias.filter(c=>c.subjectId===id).map(c=>c.id);
     state.criterios = state.criterios.filter(k=>!comps.includes(k.compId)); state.competencias = state.competencias.filter(c=>c.subjectId!==id);
     state.tareas = state.tareas.filter(x=>x.subjectId!==id); state.plan = state.plan.filter(p=>p.subj!==id);
@@ -1729,6 +2074,19 @@ const A = {
   syncOut: () => doSyncOut(),
   syncIn: () => pickFile('sync'),
   lvAssign: () => lvAssignModal(),
+  dedupe: async () => { const n = await dedupeByName(); toast(n ? `${n} elementos repetidos fusionados` : 'No hay repetidos'); rerender(); },
+  syncInWelcome: () => pickFile('sync'),
+  panTab: t => { ui.pan.tab = t.dataset.v; render(); },
+  panStu: t => { ui.pan.sid = t.dataset.id; ui.pan.tab = 'alumno'; render(); $('#main').scrollTop = 0; },
+  panOpenRep: () => { Object.assign(ui.rep, {gid:ui.pan.gid, sid:ui.pan.sid, subj:ui.pan.subj, period: ui.pan.period}); ui.view = 'informes'; render(); $('#main').scrollTop = 0; },
+  cmpToggle: t => { const c = ui.pan.cmp, id = t.dataset.id, i = c.indexOf(id);
+    if (i >= 0) c.splice(i, 1); else if (c.length >= 6) { toast('Máximo 6 alumnos'); return; } else c.push(id); rerender(); },
+  cmpClear: () => { ui.pan.cmp = []; rerender(); },
+  grpMake: () => { makeGroups(panelData()); rerender(); },
+  grpCopy: () => {
+    const txt = ui.pan.groups.map((g,i) => `Grupo ${i+1}: ` + g.map(id => (byId(state.students,id)||{}).name).join(', ')).join('\n');
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast('Grupos copiados'), () => prompt('Copia los grupos:', txt));
+  },
   tlvAssign: () => {
     const ts = state.tareas.filter(t => t.subjectId === ui.cfg.taskSubj && t.active !== false).sort((a,b)=>a.name.localeCompare(b.name,'es'));
     showModal(`<h3>Asignar niveles a tareas</h3>
@@ -1802,6 +2160,13 @@ const C = {
   taskLv: t => { ui.cfg.taskLv = t.value; rerender(); },
   tLv: () => filterTaskTree(),
   planGroupLv: t => { if (!t.value) return; const c = ui.planCtx; const g = byId(state.groups, c.gid); g.level = t.value; saveState(); planModal(c.date, c.gid, c.subj, c.start); },
+  panG: t => { ui.pan.gid = t.value; ui.pan.sid = ''; ui.pan.cmp = []; ui.pan.groups = null; rerender(); },
+  panM: t => { ui.pan.subj = t.value; ui.pan.evo = 'glob'; rerender(); },
+  panP: t => { ui.pan.period = t.value; rerender(); },
+  panS: t => { ui.pan.sid = t.value; rerender(); },
+  panEvo: t => { ui.pan.evo = t.value; rerender(); },
+  grpSize: t => { ui.pan.size = Number(t.value); ui.pan.groups = null; rerender(); },
+  grpBase: t => { ui.pan.base = t.value; ui.pan.groups = null; rerender(); },
   evoSel: t => { ui.rep.evo = t.value; rerender(); },
   groupLevel: t => { const g = byId(state.groups, ui.cfg.gid); g.level = t.value; saveState(); rerender(); },
   devName: t => { state.prefs.device = t.value.trim(); saveState(); },
@@ -1923,6 +2288,15 @@ async function doSyncOut(){
 }
 async function mergeData(data){
   const rs = migrate(JSON.parse(JSON.stringify(data.state))), rt = rs.tomb || {}, lt = state.tomb;
+  // Dispositivo recién estrenado (sin grupos ni registros): adopta los datos del otro tal cual, sin duplicar materias ni anotaciones
+  if (!records.length && !state.groups.length){
+    const keep = {device: state.prefs.device, deselect: state.prefs.deselect};
+    state = rs; state.prefs = Object.assign({}, rs.prefs, keep);
+    records = data.records.slice().sort((a,b) => a.ts - b.ts);
+    await tx('records','readwrite', st => st.clear()); await putRecords(records, true);
+    buildSnap(); await saveState(true);
+    return {added: records.length, updated: 0, removed: 0};
+  }
   let added = 0, updated = 0, removed = 0;
   COLLS.forEach(c => {
     const loc = state[c] || (state[c] = []), m = new Map(loc.map(e => [e.id, e]));
@@ -1949,7 +2323,72 @@ async function mergeData(data){
   records.sort((a,b) => a.ts - b.ts);
   if (put.length) await putRecords(put, true);
   buildSnap(); await saveState(true);
-  return {added, updated, removed};
+  const dd = await dedupeByName();
+  return {added, updated, removed: removed + dd};
+}
+
+// ---------- Fusionar materias y anotaciones repetidas (mismo nombre) ----------
+// Se queda siempre con el id menor, así todos los dispositivos llegan al mismo resultado al sincronizar.
+async function dedupeByName(){
+  const key = x => String(x||'').trim().toLowerCase();
+  const remapS = {}, remapI = {};
+  const bySubj = {};
+  state.subjects.forEach(s => (bySubj[key(s.name)] || (bySubj[key(s.name)] = [])).push(s));
+  Object.values(bySubj).forEach(arr => { if (arr.length < 2) return; arr.sort((a,b) => a.id < b.id ? -1 : 1); arr.slice(1).forEach(x => remapS[x.id] = arr[0].id); });
+  const rs = id => remapS[id] || id;
+  if (Object.keys(remapS).length){
+    state.subjects = state.subjects.filter(s => !remapS[s.id]);
+    state.competencias.forEach(c => c.subjectId = rs(c.subjectId));
+    state.tareas.forEach(t => t.subjectId = rs(t.subjectId));
+    state.schedule.forEach(x => x.subjectId = rs(x.subjectId));
+    state.plan.forEach(p => p.subj = rs(p.subj));
+    state.indicators.forEach(i => { if (i.subjectId !== '*') i.subjectId = rs(i.subjectId); });
+  }
+  // competencias repetidas (misma materia y código): se juntan sus criterios
+  const remapC = {}, byComp = {};
+  state.competencias.forEach(c => (byComp[c.subjectId+'|'+key(c.code)] || (byComp[c.subjectId+'|'+key(c.code)] = [])).push(c));
+  Object.values(byComp).forEach(arr => { if (arr.length < 2) return; arr.sort((a,b) => a.id < b.id ? -1 : 1); arr.slice(1).forEach(x => remapC[x.id] = arr[0].id); });
+  if (Object.keys(remapC).length){
+    state.competencias = state.competencias.filter(c => !remapC[c.id]);
+    state.criterios.forEach(k => { if (remapC[k.compId]) k.compId = remapC[k.compId]; });
+    state.tareas.forEach(t => t.compIds = [...new Set((t.compIds||[]).map(id => remapC[id] || id))]);
+  }
+  // criterios repetidos (misma competencia, código y niveles)
+  const remapK = {}, byCrit = {};
+  state.criterios.forEach(k => { const kk = k.compId+'|'+key(k.code)+'|'+(k.levels||[]).slice().sort().join(','); (byCrit[kk] || (byCrit[kk] = [])).push(k); });
+  Object.values(byCrit).forEach(arr => { if (arr.length < 2) return; arr.sort((a,b) => a.id < b.id ? -1 : 1); arr.slice(1).forEach(x => remapK[x.id] = arr[0].id); });
+  if (Object.keys(remapK).length){
+    state.criterios = state.criterios.filter(k => !remapK[k.id]);
+    state.tareas.forEach(t => t.critIds = [...new Set((t.critIds||[]).map(id => remapK[id] || id))]);
+  }
+  // tareas repetidas (misma materia y nombre)
+  const remapT = {}, byTask = {};
+  state.tareas.forEach(t => (byTask[t.subjectId+'|'+key(t.name)] || (byTask[t.subjectId+'|'+key(t.name)] = [])).push(t));
+  Object.values(byTask).forEach(arr => { if (arr.length < 2) return; arr.sort((a,b) => a.id < b.id ? -1 : 1); arr.slice(1).forEach(x => remapT[x.id] = arr[0].id); });
+  if (Object.keys(remapT).length){
+    state.tareas = state.tareas.filter(t => !remapT[t.id]);
+    state.plan.forEach(p => p.taskIds = [...new Set(p.taskIds.map(id => remapT[id] || id))]);
+  }
+  // anotaciones estándar repetidas
+  const byInd = {};
+  state.indicators.forEach(i => { const kk = [key(i.name), i.subjectId, i.cat, i.mode, i.v].join('|'); (byInd[kk] || (byInd[kk] = [])).push(i); });
+  Object.values(byInd).forEach(arr => { if (arr.length < 2) return; arr.sort((a,b) => a.id < b.id ? -1 : 1); arr.slice(1).forEach(x => remapI[x.id] = arr[0].id); });
+  if (Object.keys(remapI).length) state.indicators = state.indicators.filter(i => !remapI[i.id]);
+  // sesiones de horario repetidas
+  const seenS = new Set(); state.schedule = state.schedule.filter(x => { const k = [x.day,x.start,x.end,x.groupId,x.subjectId].join('|'); if (seenS.has(k)) return false; seenS.add(k); return true; });
+  const n = Object.keys(remapS).length + Object.keys(remapC).length + Object.keys(remapK).length + Object.keys(remapT).length + Object.keys(remapI).length;
+  // registros que apuntaban a lo fusionado
+  const upd = [];
+  records.forEach(r => { let ch = false;
+    if (remapS[r.subj]) { r.subj = remapS[r.subj]; ch = true; }
+    if (r.ind && remapI[r.ind]) { r.ind = remapI[r.ind]; ch = true; }
+    if (r.task && remapT[r.task]) { r.task = remapT[r.task]; ch = true; }
+    if ((r.comp||[]).some(id => remapC[id])) { r.comp = [...new Set(r.comp.map(id => remapC[id] || id))]; ch = true; }
+    if ((r.crit||[]).some(id => remapK[id])) { r.crit = [...new Set(r.crit.map(id => remapK[id] || id))]; ch = true; }
+    if (ch) upd.push(r); });
+  if (upd.length) await putRecords(upd);
+  if (n || upd.length) await saveState();
+  return n;
 }
 
 // ---------- Compartir currículo ----------
@@ -2005,6 +2444,7 @@ function importCurric(data){
     else { Object.assign(t, links); n.u++; }
   });
   saveState();
+  dedupeByName();
   return `Currículo importado: ${n.c} competencias, ${n.k} criterios y ${n.t} tareas nuevas${n.u?`, ${n.u} actualizadas`:''}${n.s?`, ${n.s} materias nuevas`:''}.`;
 }
 async function loadCentro(){
@@ -2126,7 +2566,7 @@ function loadDemo(){
 }
 
 // ---------- Arranque ----------
-const VIEWS = {aula:viewAula, plan:viewPlan, historial:viewHistorial, informes:viewInformes, ajustes:viewAjustes};
+const VIEWS = {aula:viewAula, plan:viewPlan, panel:viewPanel, historial:viewHistorial, informes:viewInformes, ajustes:viewAjustes};
 (async function init(){
   try { await loadAll(); }
   catch (err) { $('#main').innerHTML = `<div class="wrap"><div class="card empty">No se puede acceder al almacenamiento de este navegador (${esc(err.message||err)}).<br>En iPad, abre la app desde Safari normal (no en modo privado).</div></div>`; return; }

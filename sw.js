@@ -1,6 +1,6 @@
 // RegistrAula · Service Worker
 // Al publicar una versión nueva, sube el número de CACHE para que las tablets la descarguen.
-const CACHE = 'registraula-v5';
+const CACHE = 'registraula-v7';
 const FILES = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
