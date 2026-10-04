@@ -418,7 +418,7 @@ function stamp(){
   for (const id of [...snap.keys()]) if (!seen.has(id)) { state.tomb[id] = now; snap.delete(id); }
 }
 const saveState = (noStamp) => { if (noStamp !== true) stamp(); return tx('kv','readwrite', s => s.put(state, 'state')).catch(err => alert('Error guardando: ' + err)); };
-const putRecords = (recs, keepU) => { const now = Date.now(); if (!keepU) recs.forEach(r => r._u = now);
+const putRecords = (recs, keepU) => { const now = Date.now(); if (!keepU) recs.forEach(r => { r._u = now; if (!r._c) r._c = now; });
   return tx('records','readwrite', s => { recs.forEach(r => s.put(r)); }).catch(err => alert('Error guardando: ' + err)); };
 const rawDel = ids => tx('records','readwrite', s => { ids.forEach(id => s.delete(id)); });
 const delRecords = ids => { const now = Date.now(); ids.forEach(id => state.tomb[id] = now); saveState(); return rawDel(ids); };
@@ -429,6 +429,7 @@ async function loadAll(){
   if (!state) state = defaultState();
   state = migrate(state); buildSnap(); await saveState(true);
   records.sort((a,b) => a.ts - b.ts);
+  ui.practice = await tx('kv','readonly', s => s.get('practiceMeta')) || null;
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{});
 }
 
@@ -489,7 +490,8 @@ function renderTabs(){
 function render(){
   renderTabs();
   const scroll = $('#main').scrollTop;
-  $('#main').innerHTML = VIEWS[ui.view]();
+  $('#main').innerHTML = (ui.practice ? `<div class="wrap noprint" style="padding-bottom:0"><div class="banner" style="margin:0;background:var(--l1);color:var(--l1i)">🧪 <b>Modo práctica</b> desde el ${new Date(ui.practice.ts).toLocaleString('es-ES')}. Lo que anotes podrá borrarse.
+     <button class="btn sm" data-a="practiceEnd">Terminar prácticas…</button></div></div>` : '') + VIEWS[ui.view]();
   if (ui.keepScroll) { $('#main').scrollTop = scroll; ui.keepScroll = false; }
 }
 const rerender = () => { ui.keepScroll = true; render(); };
@@ -1792,6 +1794,11 @@ function cfgDatos(){
         <input type="text" inputmode="decimal" data-c="cut" data-i="1" value="${fmtNum(state.prefs.cuts[1],2)}" style="width:70px"> ≤ BI &lt;
         <input type="text" inputmode="decimal" data-c="cut" data-i="2" value="${fmtNum(state.prefs.cuts[2],2)}" style="width:70px"> ≤ NT &lt;
         <input type="text" inputmode="decimal" data-c="cut" data-i="3" value="${fmtNum(state.prefs.cuts[3],2)}" style="width:70px"> ≤ SB</div></div>
+    <div class="card" style="margin-top:12px"><h3 style="margin-top:0">🧪 Prácticas con punto de retorno</h3>
+      <p class="ink2 small">Para probar la app con tu clase real y después borrar solo lo practicado: anotaciones, evaluaciones y observaciones del alumnado.
+      No se tocan listas, grupos, currículo, tareas, anotaciones estándar ni horario. Lo que modifiques o borres de antes también se recupera.</p>
+      ${ui.practice ? `<button class="btn danger" data-a="practiceEnd">Terminar prácticas…</button>` : `<button class="btn" data-a="practiceStart">Empezar prácticas</button>`}
+      <p class="muted small" style="margin-bottom:0">El punto de retorno se guarda solo en este dispositivo. No sincronices mientras practicas.</p></div>
     <div class="card" style="margin-top:12px"><h3 style="margin-top:0">Datos de ejemplo</h3>
       <p class="ink2 small">Crea un grupo ficticio con alumnado y cinco semanas de registros para ver cómo funcionan los informes.</p>
       <div class="row">${demo?`<button class="btn danger" data-a="delDemo">Borrar los datos de ejemplo</button>`:`<button class="btn" data-a="demo">Cargar datos de ejemplo</button>`}</div></div>
@@ -2074,6 +2081,10 @@ const A = {
   syncOut: () => doSyncOut(),
   syncIn: () => pickFile('sync'),
   lvAssign: () => lvAssignModal(),
+  practiceStart: () => practiceStart(),
+  practiceEnd: () => practiceEndModal(),
+  practiceRevert: () => practiceRevert(),
+  practiceKeep: () => practiceKeep(),
   dedupe: async () => { const n = await dedupeByName(); toast(n ? `${n} elementos repetidos fusionados` : 'No hay repetidos'); rerender(); },
   syncInWelcome: () => pickFile('sync'),
   panTab: t => { ui.pan.tab = t.dataset.v; render(); },
@@ -2262,6 +2273,44 @@ $('#fileIn').addEventListener('change', async e => {
   } catch (err) { alert('No se ha podido completar: ' + err.message); }
 });
 
+// ---------- Modo práctica: punto de retorno solo para los datos del alumnado ----------
+// Guarda una copia de los registros (y del plan) en este dispositivo. Al terminar se vuelve exactamente a ese punto.
+// No toca grupos, alumnado, materias, currículo, tareas, anotaciones estándar ni horario.
+async function practiceStart(){
+  if (!confirm('Se guardará un punto de retorno con los registros actuales del alumnado.\n\nPodrás practicar y, al terminar, volver a este punto: se borrará todo lo que anotes o evalúes y se recuperará lo que modifiques o borres.\n\nListas, grupos, currículo, tareas, anotaciones estándar y horario NO se tocan. ¿Empezar?')) return;
+  const meta = {ts: Date.now(), n: records.length};
+  await tx('kv','readwrite', s => { s.put({records, plan: state.plan}, 'practiceSnap'); s.put(meta, 'practiceMeta'); });
+  ui.practice = meta; toast('Modo práctica activado'); rerender();
+}
+function practiceEndModal(){
+  const p = ui.practice; if (!p) return;
+  const nuevos = records.filter(r => !r._c || r._c >= p.ts).length;
+  showModal(`<h3>Terminar las prácticas</h3>
+    <p class="ink2">Empezaste el ${new Date(p.ts).toLocaleString('es-ES')}. Desde entonces hay unos <b>${nuevos}</b> registros nuevos del alumnado.</p>
+    <label style="display:flex;gap:8px;align-items:flex-start;margin:8px 0"><input type="checkbox" id="prPlan" style="width:20px;height:20px;flex:none;margin-top:2px"> Deshacer también las tareas que haya planificado en sesiones durante la práctica</label>
+    <div class="row" style="margin-top:14px;justify-content:space-between">
+      <button class="btn" data-a="practiceKeep">Conservar lo practicado</button>
+      <span class="row"><button class="btn" data-a="closeModal">Cancelar</button><button class="btn danger" data-a="practiceRevert">Borrar lo practicado y volver</button></span></div>
+    <p class="muted small">"Conservar" quita el modo práctica sin borrar nada.</p>`);
+}
+async function practiceRevert(){
+  const snap = await tx('kv','readonly', s => s.get('practiceSnap'));
+  if (!snap) { alert('No se encuentra el punto de retorno.'); return; }
+  const withPlan = $('#prPlan') && $('#prPlan').checked;
+  const keep = new Set(snap.records.map(r => r.id)), gone = records.filter(r => !keep.has(r.id)).map(r => r.id);
+  const now = Date.now(); gone.forEach(id => state.tomb[id] = now);   // por si ya se habían sincronizado
+  records = snap.records.slice().sort((a,b) => a.ts - b.ts);
+  await tx('records','readwrite', s => { s.clear(); records.forEach(r => s.put(r)); });
+  if (withPlan) state.plan = snap.plan;
+  await saveState();
+  await tx('kv','readwrite', s => { s.delete('practiceSnap'); s.delete('practiceMeta'); });
+  ui.practice = null; ui.sel.clear(); closeModal(); toast(`Prácticas borradas: ${gone.length} registros eliminados`); render();
+}
+async function practiceKeep(){
+  await tx('kv','readwrite', s => { s.delete('practiceSnap'); s.delete('practiceMeta'); });
+  ui.practice = null; closeModal(); toast('Modo práctica terminado; se conserva todo'); render();
+}
+
 // ---------- Sincronización por archivo (fusión sin pérdidas) ----------
 function syncModal(){
   const si = state.syncInfo || {};
@@ -2281,6 +2330,7 @@ function syncModal(){
     <div class="row" style="justify-content:flex-end"><button class="btn" data-a="closeModal">Cerrar</button></div>`);
 }
 async function doSyncOut(){
+  if (ui.practice && !confirm('Estás en modo práctica: si envías ahora, lo practicado llegará al otro dispositivo. ¿Enviar igualmente?')) return;
   const dev = (state.prefs.device || 'dispositivo').replace(/[^\wÀ-ÿ-]+/g,'_');
   const n = new Date(), data = {app:'RegistrAula', type:'sync', version:3, device: state.prefs.device || 'dispositivo', date:n.toISOString(), state, records};
   const ok = await saveFile(`RegistrAula_sync_${dev}_${ymd(n)}_${pad(n.getHours())}${pad(n.getMinutes())}.json`, new Blob([JSON.stringify(data)], {type:'application/json'}));
