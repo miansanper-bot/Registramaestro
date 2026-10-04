@@ -252,6 +252,7 @@ const CATS = [
 const AREA = Object.fromEntries(CATS.map(c=>[c.k,c.area]));
 const DAYS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 const DAYS_L = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const APP_VERSION = '9';
 const LEVELS = {1:'No conseguido', 2:'En proceso', 3:'Conseguido', 4:'Destacado'};
 const GRADES = ['IN','SU','BI','NT','SB'];
 const NIVELES = [['I3','Inf. 3 años'],['I4','Inf. 4 años'],['I5','Inf. 5 años'],['1','1.º'],['2','2.º'],['3','3.º'],['4','4.º'],['5','5.º'],['6','6.º']];
@@ -1776,7 +1777,7 @@ function cfgDatos(){
   const n = records.length, demo = state.groups.some(g=>g.demo);
   return `<div class="card">
     <p style="margin-top:0"><b>${n}</b> registros · ${state.students.length} alumnos · ${state.groups.length} grupos.<br>
-    <span class="muted small">Última copia de seguridad: ${state.lastBackup ? new Date(state.lastBackup).toLocaleString('es-ES') : 'nunca'}</span></p>
+    <span class="muted small">Versión de la app: <b>${APP_VERSION}</b> · Última copia de seguridad: ${state.lastBackup ? new Date(state.lastBackup).toLocaleString('es-ES') : 'nunca'}</span></p>
     <p class="ink2 small">Los datos se guardan <b>solo en esta tablet</b> y no se envían a ningún servidor. Haz copia a menudo y guárdala en un lugar seguro del centro: si se borran los datos del navegador o se pierde la tablet, la copia es la única forma de recuperarlos.</p>
     <div class="row">
       <button class="btn pri" data-a="backup">Hacer copia de seguridad</button>
@@ -2260,9 +2261,12 @@ $('#fileIn').addEventListener('change', async e => {
     }
     if (data.app !== 'RegistrAula' || !data.state || !Array.isArray(data.records)) throw new Error('No es una copia ni un archivo de sincronización de RegistrAula');
     if (ui.fileMode === 'sync') {
+      const si = state.syncInfo || {}, fdate = Date.parse(data.date) || 0;
+      if (si.lastFileDate && fdate && fdate < si.lastFileDate && (data.device || '') === (si.from || '') &&
+          !confirm(`Este archivo de "${data.device}" es del ${new Date(fdate).toLocaleString('es-ES')}, ANTERIOR al último que recibiste (${new Date(si.lastFileDate).toLocaleString('es-ES')}).\nProbablemente no es el más reciente. ¿Recibirlo igualmente?`)) return;
       const r = await mergeData(data);
-      state.syncInfo = Object.assign({}, state.syncInfo, {lastIn: Date.now(), from: data.device || 'otro dispositivo'}); await saveState(true);
-      closeModal(); toast(`Fusionado: ${r.added} nuevos, ${r.updated} actualizados, ${r.removed} borrados`); render(); return;
+      state.syncInfo = Object.assign({}, state.syncInfo, {lastIn: Date.now(), from: data.device || 'otro dispositivo', lastFileDate: fdate}); await saveState(true);
+      render(); syncResultModal(data, r); return;
     }
     if (!confirm(`La copia es del ${new Date(data.date).toLocaleString('es-ES')} y tiene ${data.records.length} registros.\nSe REEMPLAZARÁN todos los datos actuales de esta tablet. ¿Continuar?\n\n(Si quieres juntar datos de dos dispositivos, usa "Sincronizar" en lugar de restaurar.)`)) return;
     await tx('records','readwrite', s => s.clear());
@@ -2327,12 +2331,27 @@ function syncModal(){
       <button class="btn pri" data-a="syncIn">⇩ Recibir y fusionar</button>
       <p class="muted small" style="margin-bottom:0">Última recepción: ${f(si.lastIn)}${si.from?' · de '+esc(si.from):''}</p></div>
     <p class="muted small">Para trabajar en los dos: al terminar en uno, "Enviar"; al empezar en el otro, "Recibir". Si has trabajado en los dos a la vez, haz enviar y recibir en ambos sentidos. El archivo contiene datos del alumnado: guárdalo solo en tu nube personal o del centro.</p>
-    <div class="row" style="justify-content:flex-end"><button class="btn" data-a="closeModal">Cerrar</button></div>`);
+    <div class="row" style="justify-content:space-between"><span class="muted small">Versión ${APP_VERSION} · usa la misma en los dos dispositivos</span><button class="btn" data-a="closeModal">Cerrar</button></div>`);
+}
+const SYNC_LBL = {groups:'Grupos', students:'Alumnado', subjects:'Materias', indicators:'Anotaciones estándar (conductas…)', schedule:'Sesiones del horario',
+  competencias:'Competencias', criterios:'Criterios', tareas:'Tareas', plan:'Tareas planificadas en sesiones', records:'Registros del alumnado'};
+function syncResultModal(data, r){
+  const head = `<h3>Datos recibidos</h3><p class="ink2 small" style="margin-top:0">Archivo de <b>${esc(data.device||'otro dispositivo')}</b> creado el <b>${new Date(data.date).toLocaleString('es-ES')}</b>.</p>`;
+  const vWarn = data.appVersion !== APP_VERSION ? `<div class="banner">El otro dispositivo usa ${data.appVersion ? 'la versión '+esc(data.appVersion) : 'una versión anterior'} y este la ${APP_VERSION}. Actualiza los dos a la misma versión para que todo pase bien.</div>` : '';
+  if (r.fresh) { showModal(head + `<p>Este dispositivo estaba vacío: ahora es una copia exacta del otro (${r.added} registros).</p><div class="row" style="justify-content:flex-end"><button class="btn pri" data-a="closeModal">Aceptar</button></div>`); return; }
+  const rows = Object.entries(r.det).filter(([,x]) => x.a || x.u || x.d || x.b);
+  const blocked = rows.reduce((s,[,x]) => s + x.b, 0);
+  showModal(head + vWarn + (rows.length ? `<table class="tbl"><thead><tr><th></th><th class="num">Nuevos</th><th class="num">Cambiados</th><th class="num">Borrados</th>${blocked?'<th class="num">No aplicados</th>':''}</tr></thead><tbody>` +
+      rows.map(([c,x]) => `<tr><td>${SYNC_LBL[c]||c}</td><td class="num">${x.a||''}</td><td class="num">${x.u||''}</td><td class="num">${x.d||''}</td>${blocked?`<td class="num">${x.b||''}</td>`:''}</tr>`).join('') + `</tbody></table>`
+      : `<p><b>No había nada nuevo</b>: este dispositivo ya tenía todo lo de ese archivo. Si esperabas cambios, comprueba que en el otro dispositivo pulsaste "Enviar" <i>después</i> de hacerlos y que has elegido el archivo más reciente (iCloud puede tardar un poco en traerlo).</p>`) +
+    (r.dedup ? `<p class="small ink2">Además se han fusionado ${r.dedup} elementos repetidos.</p>` : '') +
+    (blocked ? `<p class="small" style="color:var(--neg)"><b>${blocked} elementos no se han aplicado</b> porque en este dispositivo se borraron después. Si quieres que este dispositivo quede exactamente igual que el otro, usa Ajustes › Datos › "Restaurar una copia…" con ese mismo archivo.</p>` : '') +
+    `<div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn pri" data-a="closeModal">Aceptar</button></div>`);
 }
 async function doSyncOut(){
   if (ui.practice && !confirm('Estás en modo práctica: si envías ahora, lo practicado llegará al otro dispositivo. ¿Enviar igualmente?')) return;
   const dev = (state.prefs.device || 'dispositivo').replace(/[^\wÀ-ÿ-]+/g,'_');
-  const n = new Date(), data = {app:'RegistrAula', type:'sync', version:3, device: state.prefs.device || 'dispositivo', date:n.toISOString(), state, records};
+  const n = new Date(), data = {app:'RegistrAula', type:'sync', version:3, appVersion: APP_VERSION, device: state.prefs.device || 'dispositivo', date:n.toISOString(), state, records};
   const ok = await saveFile(`RegistrAula_sync_${dev}_${ymd(n)}_${pad(n.getHours())}${pad(n.getMinutes())}.json`, new Blob([JSON.stringify(data)], {type:'application/json'}));
   if (ok) { state.syncInfo = Object.assign({}, state.syncInfo, {lastOut: Date.now()}); state.lastBackup = Date.now(); await saveState(true); toast('Datos enviados'); syncModal(); }
 }
@@ -2345,36 +2364,37 @@ async function mergeData(data){
     records = data.records.slice().sort((a,b) => a.ts - b.ts);
     await tx('records','readwrite', st => st.clear()); await putRecords(records, true);
     buildSnap(); await saveState(true);
-    return {added: records.length, updated: 0, removed: 0};
+    return {added: records.length, updated: 0, removed: 0, fresh: true};
   }
   let added = 0, updated = 0, removed = 0;
+  const det = {}; [...COLLS, 'records'].forEach(c => det[c] = {a:0, u:0, d:0, b:0});
   COLLS.forEach(c => {
     const loc = state[c] || (state[c] = []), m = new Map(loc.map(e => [e.id, e]));
     (rs[c] || []).forEach(re => {
       const ru = re._u || 0, le = m.get(re.id);
-      if (lt[re.id] && lt[re.id] >= ru) return;               // lo borré yo después
-      if (!le) { loc.push(re); m.set(re.id, re); added++; }
-      else if (ru > (le._u || 0)) { Object.keys(le).forEach(k => delete le[k]); Object.assign(le, re); updated++; }
+      if (lt[re.id] && lt[re.id] >= ru) { if (!le) det[c].b++; return; }   // lo borré yo después
+      if (!le) { loc.push(re); m.set(re.id, re); added++; det[c].a++; }
+      else if (ru > (le._u || 0)) { Object.keys(le).forEach(k => delete le[k]); Object.assign(le, re); updated++; det[c].u++; }
     });
   });
   Object.entries(rt).forEach(([id, ts]) => {
-    COLLS.forEach(c => { const i = state[c].findIndex(e => e.id === id); if (i >= 0 && (state[c][i]._u || 0) <= ts) { state[c].splice(i, 1); removed++; } });
+    COLLS.forEach(c => { const i = state[c].findIndex(e => e.id === id); if (i >= 0 && (state[c][i]._u || 0) <= ts) { state[c].splice(i, 1); removed++; det[c].d++; } });
     if (!lt[id] || lt[id] < ts) lt[id] = ts;
   });
   const rm = new Map(records.map(r => [r.id, r])), put = [], del = [];
   data.records.forEach(rr => {
     const ru = rr._u || rr.ts || 0, lr = rm.get(rr.id);
-    if (lt[rr.id] && lt[rr.id] >= ru) return;
-    if (!lr) { records.push(rr); rm.set(rr.id, rr); put.push(rr); added++; }
-    else if (ru > (lr._u || lr.ts || 0)) { Object.assign(lr, rr); put.push(lr); updated++; }
+    if (lt[rr.id] && lt[rr.id] >= ru) { if (!lr) det.records.b++; return; }
+    if (!lr) { records.push(rr); rm.set(rr.id, rr); put.push(rr); added++; det.records.a++; }
+    else if (ru > (lr._u || lr.ts || 0)) { Object.assign(lr, rr); put.push(lr); updated++; det.records.u++; }
   });
   Object.entries(rt).forEach(([id, ts]) => { const lr = rm.get(id); if (lr && (lr._u || lr.ts || 0) <= ts) del.push(id); });
-  if (del.length) { const d = new Set(del); records = records.filter(r => !d.has(r.id)); removed += del.length; await rawDel(del); }
+  if (del.length) { const d = new Set(del); records = records.filter(r => !d.has(r.id)); removed += del.length; det.records.d += del.length; await rawDel(del); }
   records.sort((a,b) => a.ts - b.ts);
   if (put.length) await putRecords(put, true);
   buildSnap(); await saveState(true);
   const dd = await dedupeByName();
-  return {added, updated, removed: removed + dd};
+  return {added, updated, removed: removed + dd, det, dedup: dd};
 }
 
 // ---------- Fusionar materias y anotaciones repetidas (mismo nombre) ----------
